@@ -199,12 +199,16 @@
                                 </div>
                             </div>  
                             <div class="form-row">
-                                <div class="form-group col-md-6">
+                                <div class="form-group col-md-4">
+                                    <label for="precio_venta">Precio Compra</label>
+                                    <input type="text" v-model="articulo.precio_compra" class="form-control text-center" id="precio_venta">                                    
+                                </div>     
+                                <div class="form-group col-md-4">
                                     <label for="precio_venta">Precio Venta</label>
                                     <input type="text" v-model="articulo.precio_venta" class="form-control text-center" id="precio_venta">
                                     <span v-if="errors.precio_venta" class="error">{{ errors.precio_venta[0] }}</span>
                                 </div>                                
-                                <div class="form-group col-md-6">
+                                <div class="form-group col-md-4">
                                     <label for="stock">Stock</label>
                                     <input type="text" v-model="articulo.stock" class="form-control text-center" id="stock">
                                     <span v-if="errors.stock" class="error">{{ errors.stock[0] }}</span>
@@ -265,6 +269,7 @@
                     idmarca : '',                    
                     codigo : '',                    
                     nombre : '',
+                    precio_compra : 0,
                     precio_venta : 0,
                     stock : 0,                    
                     descripcion : '',
@@ -279,7 +284,8 @@
                     { key : 'nombre', label : 'Artículo', sortable: true },
                     { key : 'categoria', label : 'Categoría', sortable: true },
                     { key : 'marca', label : 'Marca', sortable: true },        
-                    { key : 'precio_venta', label : 'Precio Venta', class: 'text-center' },            
+                    { key : 'precio_compra', label : 'P. Compra', class: 'text-center' },
+                    { key : 'precio_venta', label : 'P. Venta', class: 'text-center' },            
                     { key : 'stock', label : 'Stock', class: 'text-center' },            
                     { key : 'condicion', label : 'Condición', class: 'text-center' },            
                 ], 
@@ -381,6 +387,7 @@
                         this.articulo.nombre = '';
                         this.articulo.idcategoria = '';
                         this.articulo.idmarca = '';
+                        this.articulo.precio_compra = '';
                         this.articulo.precio_venta = '';
                         this.articulo.stock = '';
                         this.articulo.descripcion = '';
@@ -395,6 +402,7 @@
                         this.articulo.nombre = data.nombre;
                         this.articulo.idcategoria = data.idcategoria;                        
                         this.articulo.idmarca = data.idmarca;                        
+                        this.articulo.precio_compra = data.precio_compra;
                         this.articulo.precio_venta = data.precio_venta;
                         this.articulo.stock = data.stock;
                         this.articulo.descripcion = data.descripcion;
@@ -412,6 +420,7 @@
                     'nombre': this.articulo.nombre,
                     'idcategoria': this.articulo.idcategoria,
                     'idmarca': this.articulo.idmarca,
+                    'precio_compra': this.articulo.precio_compra,
                     'precio_venta': this.articulo.precio_venta,
                     'stock': this.articulo.stock,
                     'descripcion': this.articulo.descripcion,
@@ -444,6 +453,7 @@
                     'nombre': this.articulo.nombre,
                     'idcategoria': this.articulo.idcategoria,
                     'idmarca': this.articulo.idmarca,
+                    'precio_compra': this.articulo.precio_compra,
                     'precio_venta': this.articulo.precio_venta,
                     'stock': this.articulo.stock,
                     'descripcion': this.articulo.descripcion,
@@ -472,6 +482,7 @@
                 this.articulo.nombre = '';
                 this.articulo.idcategoria = 0;
                 this.articulo.idmarca = 0;
+                this.articulo.precio_compra = '';
                 this.articulo.precio_venta = '';
                 this.articulo.stock = '';
                 this.articulo.descripcion = '';   

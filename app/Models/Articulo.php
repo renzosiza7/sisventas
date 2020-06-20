@@ -35,7 +35,7 @@ class Articulo extends Model
                         ->select('articulos.id', 'articulos.codigo', 'articulos.nombre',
                                  'categorias.id as idcategoria', 'marcas.id as idmarca',
                                  'categorias.nombre as categoria', 'marcas.nombre as marca',
-                                 'articulos.precio_venta', 'articulos.stock',
+                                 'articulos.precio_compra', 'articulos.precio_venta', 'articulos.stock',
                                  'articulos.descripcion', 'articulos.condicion')
                         ->orderBy('articulos.id', 'desc')
                         ->get();

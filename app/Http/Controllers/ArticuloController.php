@@ -113,6 +113,7 @@ class ArticuloController extends Controller
         $articulo->nombre = $request->nombre;
         $articulo->idcategoria = $request->idcategoria;
         $articulo->idmarca = $request->idmarca;        
+        $articulo->precio_compra = $request->precio_compra;
         $articulo->precio_venta = $request->precio_venta;
         $articulo->stock = $request->stock;
         $articulo->descripcion = $request->descripcion;
@@ -177,6 +178,7 @@ class ArticuloController extends Controller
         $articulo->nombre = $request->nombre;
         $articulo->idcategoria = $request->idcategoria;
         $articulo->idmarca = $request->idmarca;
+        $articulo->precio_compra = $request->precio_compra;
         $articulo->precio_venta = $request->precio_venta;
         $articulo->stock = $request->stock;
         $articulo->descripcion = $request->descripcion;
