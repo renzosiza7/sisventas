@@ -28,7 +28,7 @@
 
     <template v-if="menu == 'articulos'">
 
-        <articulo-component :key="renderKey" :ruta="ruta"/>
+        <articulo-component :key="renderKey" :ruta="ruta" :idrol="{{ Auth::user()->idrol }}"/>
 
     </template>
 
@@ -106,6 +106,12 @@
 
     </template>
 
+    <template v-if="menu == 'articulos'">
+
+        <articulo-component :key="renderKey" :ruta="ruta" :idrol="{{ Auth::user()->idrol }}"/>
+
+    </template>
+
     <template v-if="menu == 'clientes'">
 
         <cliente-component :key="renderKey" :ruta="ruta"/>
@@ -152,7 +158,7 @@
 
     <template v-if="menu == 'articulos'">
 
-        <articulo-component :key="renderKey" :ruta="ruta"/>
+        <articulo-component :key="renderKey" :ruta="ruta" :idrol="{{ Auth::user()->idrol }}"/>
 
     </template>
 
@@ -179,6 +185,12 @@
     <template v-if="menu == 'inicio'">
 
         <dashboard-component :key="renderKey" :ruta="ruta"/>
+
+    </template>
+
+    <template v-if="menu == 'articulos'">
+
+        <articulo-component :key="renderKey" :ruta="ruta" :idrol="{{ Auth::user()->idrol }}"/>
 
     </template>
 

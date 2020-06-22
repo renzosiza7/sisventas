@@ -10,7 +10,7 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Artículos
-                    <b-button variant="outline-success" @click="abrirModalNuevoEditar('registrar')">                    
+                    <b-button v-if="idrol == 1 || idrol == 3" variant="outline-success" @click="abrirModalNuevoEditar('registrar')">                    
                         <i class="fa fa-plus"></i> Nuevo               
                     </b-button>
                     <button type="button" @click="cargarPdf()" class="btn btn-info">
@@ -71,6 +71,7 @@
                         :sort-desc.sync="sortDesc"
                         :sort-direction="sortDirection"
                         @filtered="onFiltered"               
+                        v-if="idrol == 1 || idrol == 3"
                     >
                         <template slot="condicion" slot-scope="row">
                             <span v-if="row.item.condicion == 1" class="badge badge-success">Activo</span>
@@ -80,14 +81,37 @@
                         <template slot="opciones" slot-scope="row">
                             <b-button variant="warning" size="sm" @click="abrirModalNuevoEditar('actualizar', row.item)">
                                 <i class="icon-pencil"></i>
-                            </b-button>
+                            </b-button>                            
                             <b-button variant="danger" size="sm" v-if="row.item.condicion==1" @click="abrirModalEliminar('desactivar', row.item)">
                                 <i class="icon-trash"></i>
                             </b-button>
                             <b-button variant="success" size="sm" v-else @click="abrirModalEliminar('activar', row.item)">
                                 <i class="icon-check"></i>
-                            </b-button>                            
-                        </template>                   
+                            </b-button>      
+                        </template>                  
+
+                    </b-table>
+                    <b-table 
+                        striped 
+                        hover 
+                        bordered 
+                        small
+                        responsive
+                        :fields="columnas2" 
+                        :items="articulos"    
+                        :current-page="currentPage"
+                        :per-page="perPage"
+                        :filter="filter"
+                        :sort-by.sync="sortBy"
+                        :sort-desc.sync="sortDesc"
+                        :sort-direction="sortDirection"
+                        @filtered="onFiltered"               
+                        v-else
+                    >
+                        <template slot="condicion" slot-scope="row">
+                            <span v-if="row.item.condicion == 1" class="badge badge-success">Activo</span>
+                            <span v-else class="badge badge-secondary">Inactivo</span>                            
+                        </template>  
 
                     </b-table>
                     <b-row>
@@ -260,7 +284,7 @@
     import VueBarcode from 'vue-barcode';
 
     export default {
-        props : ['ruta'],
+        props : ['ruta', 'idrol'],
         data() {
             return {                            
                 articulo : {
@@ -280,6 +304,16 @@
                 marcas : [],
                 columnas: [                                        
                     { key: 'opciones', label: 'Opciones', class: 'text-center' },
+                    { key : 'codigo', label : 'Código', class: 'text-center' },
+                    { key : 'nombre', label : 'Artículo', sortable: true },
+                    { key : 'categoria', label : 'Categoría', sortable: true },
+                    { key : 'marca', label : 'Marca', sortable: true },        
+                    { key : 'precio_compra', label : 'P. Compra', class: 'text-center' },
+                    { key : 'precio_venta', label : 'P. Venta', class: 'text-center' },            
+                    { key : 'stock', label : 'Stock', class: 'text-center' },            
+                    { key : 'condicion', label : 'Condición', class: 'text-center' },            
+                ], 
+                columnas2: [// columnas para vendedor y cajero sin opciones                    
                     { key : 'codigo', label : 'Código', class: 'text-center' },
                     { key : 'nombre', label : 'Artículo', sortable: true },
                     { key : 'categoria', label : 'Categoría', sortable: true },
