@@ -47,16 +47,36 @@ class CategoriaController extends Controller
     public function store(Request $request)
     {
         if (!$request->ajax()) return redirect('/');
-
+        
         $this->validate($request, [
             'nombre' => 'required|max:50',            
             'descripcion' => 'nullable|max:150'
-        ]);
-        
+        ]);                
+
+        //\Log::info($request->all());       
+
         $categoria = new Categoria();
 
         $categoria->nombre = $request->nombre;
         $categoria->descripcion = $request->descripcion;
+        $categoria->acceso = $request->acceso;
+        
+        if ($categoria->acceso == 'publico') {           
+
+            $img_decoded = base64_decode($request->imagen);
+            $exploded = explode("/", $request->tipo);
+
+            if ($exploded[1] == 'jpeg') {
+                $extension = 'jpg';
+            }              
+
+            $filename = str_random() . '.' . $extension;
+            $path = public_path() . '/img/categorias/' . $filename;
+
+            file_put_contents($path, $img_decoded);
+
+            $categoria->imagen = $filename;                   
+        }
         
         $categoria->save();
     }
@@ -92,19 +112,42 @@ class CategoriaController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if (!$request->ajax()) return redirect('/');
+        if (!$request->ajax()) return redirect('/');        
         
         $this->validate($request, [
             'nombre' => 'required|max:50',            
             'descripcion' => 'nullable|max:150'
-        ]);
+        ]);        
         
         $categoria = Categoria::findOrFail($id);
 
         $categoria->nombre = $request->nombre;
-        $categoria->descripcion = $request->descripcion;        
-        
-        $categoria->save();
+        $categoria->descripcion = $request->descripcion;
+        $categoria->acceso = $request->acceso;
+
+        if ($categoria->imagen != null) {
+            $prev_img = public_path() . '/img/categorias/' . $categoria->imagen;
+            unlink($prev_img); //eliminar la imagen anterior
+            $categoria->imagen = null;
+        }
+
+        if ($categoria->acceso == 'publico') {                          
+
+            $img_decoded = base64_decode($request->imagen);
+            $exploded = explode("/", $request->tipo);
+
+            if ($exploded[1] == 'jpeg') {
+                $extension = 'jpg';
+            }              
+
+            $filename = str_random() . '.' . $extension;
+            $path = public_path() . '/img/categorias/' . $filename;
+            file_put_contents($path, $img_decoded);            
+
+            $categoria->imagen = $filename;                   
+        }
+
+        $categoria->save();        
     }
 
     /**

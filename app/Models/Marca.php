@@ -9,7 +9,7 @@ class Marca extends Model
 {
     protected $table = 'marcas';
 
-    protected $fillable = ['nombre', 'descripcion', 'condicion'];
+    protected $fillable = ['nombre', 'descripcion', 'acceso', 'imagen', 'condicion'];
 
     public function articulos()
     {
