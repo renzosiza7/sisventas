@@ -263,7 +263,7 @@
                         this.categoria.descripcion = data.descripcion;
                         this.categoria.acceso = data.acceso;
                         this.categoria.imagen = data.imagen;
-                        this.url_imagen = '/img/categorias/' + data.imagen;
+                        this.url_imagen = `${this.ruta}/img/categorias/${data.imagen}`;
                         this.tipoAccion = 2;
                         break;
                     }

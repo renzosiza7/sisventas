@@ -113,7 +113,7 @@
         @foreach ($venta as $v)
         <header><meta http-equiv="Content-Type" content="text/html; charset=utf-8">
             <div id="logo">
-                <img src="{{ base_path() }}/img/logo.png" alt="logo" id="imagen">
+                <img src="{{ base_path() }}/public/img/logo.png" alt="logo" id="imagen">
             </div>
             <div id="datos">
                 <div id="encabezado">

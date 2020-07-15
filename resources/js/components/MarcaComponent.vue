@@ -265,7 +265,7 @@
                         this.marca.descripcion = data.descripcion;
                         this.marca.acceso = data.acceso;
                         this.marca.imagen = data.imagen;
-                        this.url_imagen = '/img/marcas/' + data.imagen;
+                        this.url_imagen = `${this.ruta}/img/marcas/${data.imagen}`;
                         this.tipoAccion = 2;
                         break;
                     }
