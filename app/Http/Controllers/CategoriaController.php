@@ -59,24 +59,7 @@ class CategoriaController extends Controller
 
         $categoria->nombre = $request->nombre;
         $categoria->descripcion = $request->descripcion;
-        $categoria->acceso = $request->acceso;
-        
-        if ($categoria->acceso == 'publico') {           
-
-            $img_decoded = base64_decode($request->imagen);
-            $exploded = explode("/", $request->tipo);
-
-            if ($exploded[1] == 'jpeg') {
-                $extension = 'jpg';
-            }              
-
-            $filename = str_random() . '.' . $extension;
-            $path = public_path() . '/img/categorias/' . $filename;
-
-            file_put_contents($path, $img_decoded);
-
-            $categoria->imagen = $filename;                   
-        }
+        $categoria->acceso = $request->acceso;       
         
         $categoria->save();
     }
@@ -123,29 +106,7 @@ class CategoriaController extends Controller
 
         $categoria->nombre = $request->nombre;
         $categoria->descripcion = $request->descripcion;
-        $categoria->acceso = $request->acceso;
-
-        if ($categoria->imagen != null) {
-            $prev_img = public_path() . '/img/categorias/' . $categoria->imagen;
-            unlink($prev_img); //eliminar la imagen anterior
-            $categoria->imagen = null;
-        }
-
-        if ($categoria->acceso == 'publico') {                          
-
-            $img_decoded = base64_decode($request->imagen);
-            $exploded = explode("/", $request->tipo);
-
-            if ($exploded[1] == 'jpeg') {
-                $extension = 'jpg';
-            }              
-
-            $filename = str_random() . '.' . $extension;
-            $path = public_path() . '/img/categorias/' . $filename;
-            file_put_contents($path, $img_decoded);            
-
-            $categoria->imagen = $filename;                   
-        }
+        $categoria->acceso = $request->acceso;             
 
         $categoria->save();        
     }

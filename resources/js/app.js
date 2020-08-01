@@ -67,7 +67,8 @@ const app = new Vue({
     el: '#app',
     data: {
         menu: 'inicio',
-        ruta: '//127.0.0.1:8000',
+        //ruta: '//127.0.0.1:8000',
+        ruta: '//localhost:3000',
         //ruta: '//rs7.app/sisventas',
         //ruta: 'http://www.grupocarden.com/sisventas/public',
         //ruta: '//10.20.10.4:8001',

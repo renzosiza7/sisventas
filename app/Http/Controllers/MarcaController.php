@@ -57,23 +57,7 @@ class MarcaController extends Controller
 
         $marca->nombre = $request->nombre;
         $marca->descripcion = $request->descripcion;
-        $marca->acceso = $request->acceso;
-        
-        if ($marca->acceso == 'publico') {
-            $img_decoded = base64_decode($request->imagen);
-            $exploded = explode("/", $request->tipo);
-
-            if ($exploded[1] == 'jpeg') {
-                $extension = 'jpg';
-            }              
-
-            $filename = str_random() . '.' . $extension;
-            $path = public_path() . '/img/marcas/' . $filename;
-
-            file_put_contents($path, $img_decoded);
-
-            $marca->imagen = $filename;                   
-        }
+        $marca->acceso = $request->acceso;             
         
         $marca->save();
     }
@@ -120,29 +104,7 @@ class MarcaController extends Controller
 
         $marca->nombre = $request->nombre;
         $marca->descripcion = $request->descripcion;  
-        $marca->acceso = $request->acceso;
-
-        if ($marca->imagen != null) {
-            $prev_img = public_path() . '/img/marcas/' . $marca->imagen;
-            unlink($prev_img); //eliminar la imagen anterior
-            $marca->imagen = null;
-        }
-
-        if ($marca->acceso == 'publico') {
-            $img_decoded = base64_decode($request->imagen);
-            $exploded = explode("/", $request->tipo);
-
-            if ($exploded[1] == 'jpeg') {
-                $extension = 'jpg';
-            }              
-
-            $filename = str_random() . '.' . $extension;
-            $path = public_path() . '/img/marcas/' . $filename;
-
-            file_put_contents($path, $img_decoded);
-
-            $marca->imagen = $filename;                   
-        }      
+        $marca->acceso = $request->acceso;       
         
         $marca->save();
     }

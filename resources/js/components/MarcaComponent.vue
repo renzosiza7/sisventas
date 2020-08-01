@@ -132,14 +132,7 @@
                                     <option value="privado" selected>Privado</option>
                                     <option value="publico">Público</option>
                                 </select>
-                            </div>
-                            <div class="form-group" v-if="marca.acceso == 'publico'">
-                                <label for="imagen">Elige una imagen</label>
-                                <div v-if="marca.imagen">
-                                    <img :src="url_imagen" ref="mostrar_marca_imagen" class="size_img">
-                                </div>
-                                <input ref="marca_imagen" @change="adjuntarImagen" type="file" class="form-control-file" id="imagen" required> 
-                            </div>                      
+                            </div>                                                  
                         </div>
                         <div class="modal-footer">
                             <b-button variant="secondary" @click="cerrarModalNuevoEditar">Cancelar</b-button>
@@ -184,8 +177,7 @@
                     id : 0,
                     nombre : '',
                     descripcion : '',
-                    acceso: 'privado',
-                    imagen : '',
+                    acceso: 'privado',                    
                 },
                 columnas: [                    
                     { key: 'opciones', label: 'Opciones', class: 'text-center' },
@@ -194,8 +186,7 @@
                     { key : 'acceso', label : 'Acceso', class: 'text-center' },
                     { key : 'condicion', label : 'Condición', class: 'text-center' },                    
                 ], 
-                marcas : [],
-                url_imagen : '',
+                marcas : [],                
                 tieneArticulos : false,
                 tituloModalNuevoEditar : '',
                 tituloModalEliminar : '',
@@ -221,17 +212,7 @@
                 errors : []                             
             }
         },        
-        methods : {
-            adjuntarImagen() {
-                this.marca.imagen = this.$refs.marca_imagen.files[0]
-                let reader = new FileReader()
-
-                reader.addEventListener('load', function() {
-                    this.$refs.mostrar_marca_imagen.src = reader.result
-                }.bind(this), false)
-
-                reader.readAsDataURL(this.marca.imagen)
-            },
+        methods : {            
             listarMarca() {
                 let me = this;
 
@@ -263,9 +244,7 @@
                         this.marca.id = data.id;
                         this.marca.nombre = data.nombre;
                         this.marca.descripcion = data.descripcion;
-                        this.marca.acceso = data.acceso;
-                        this.marca.imagen = data.imagen;
-                        this.url_imagen = `${this.ruta}/img/marcas/${data.imagen}`;
+                        this.marca.acceso = data.acceso;                        
                         this.tipoAccion = 2;
                         break;
                     }
@@ -282,125 +261,64 @@
             registrarMarca() {
                 let me = this;
                 this.errors = [];
-
-                if (this.marca.acceso == 'privado') { //no publico
-                    axios.post(`${this.ruta}/marca/registrar`, {
-                        'nombre': this.marca.nombre,
-                        'descripcion': this.marca.descripcion,
-                        'acceso': this.marca.acceso
-                    }).then(function (response) {
+                
+                axios.post(`${this.ruta}/marca/registrar`, {
+                    'nombre': this.marca.nombre,
+                    'descripcion': this.marca.descripcion,
+                    'acceso': this.marca.acceso
+                }).then(function (response) {
+                    me.cerrarModalNuevoEditar();                    
+                    me.listarMarca();
+                    me.successMsg = true;
+                    me.txtSuccessMsg = 'La marca fue agregada satisfactoriamente.';
+                    me.dismissCountDown = me.dismissSecs;
+                                        
+                }).catch(function (error) {
+                    console.log(error);
+                    if (error.response.status==422) {
+                        me.errors = error.response.data.errors;
+                    }
+                    else {
                         me.cerrarModalNuevoEditar();                    
-                        me.listarMarca();
-                        me.successMsg = true;
-                        me.txtSuccessMsg = 'La marca fue agregada satisfactoriamente.';
+                        me.errorMsg = true;
+                        me.txtErrorMsg = 'Error al agregar la marca.';
                         me.dismissCountDown = me.dismissSecs;
-                                            
-                    }).catch(function (error) {
-                        console.log(error);
-                        if (error.response.status==422) {
-                            me.errors = error.response.data.errors;
-                        }
-                        else {
-                            me.cerrarModalNuevoEditar();                    
-                            me.errorMsg = true;
-                            me.txtErrorMsg = 'Error al agregar la marca.';
-                            me.dismissCountDown = me.dismissSecs;
-                        }                    
-                    });
-                }
-                else if (this.marca.acceso == 'publico') {
-                    this.marca.imagen.arrayBuffer().then(function (buffer) {
-                        axios.post(`${me.ruta}/marca/registrar`, {
-                            'nombre': me.marca.nombre,
-                            'descripcion': me.marca.descripcion,
-                            'acceso': me.marca.acceso,
-                            'imagen': me.getB64Str(buffer),
-                            'tipo': me.marca.imagen.type
-                        }).then(function (response) {
-                            me.cerrarModalNuevoEditar();                    
-                            me.listarMarca();
-                            me.successMsg = true;
-                            me.txtSuccessMsg = 'La marca fue agregada satisfactoriamente.';
-                            me.dismissCountDown = me.dismissSecs;
-                                                
-                        }).catch(function (error) {
-                            console.log(error);
-                            if (error.response.status==422) {
-                                me.errors = error.response.data.errors;
-                            }
-                            else {
-                                me.cerrarModalNuevoEditar();                    
-                                me.errorMsg = true;
-                                me.txtErrorMsg = 'Error al agregar la marca.';
-                                me.dismissCountDown = me.dismissSecs;
-                            }                    
-                        });
-                    });
-                }                
+                    }                    
+                });
+                
             },
             actualizarMarca(){
                 let me = this;
                 this.errors = [];
-
-                if (this.marca.acceso == 'privado') { //no publico
-                    axios.put(`${this.ruta}/marca/actualizar/${this.marca.id}`, {                    
-                        'nombre': this.marca.nombre,
-                        'descripcion': this.marca.descripcion,
-                        'acceso': this.marca.acceso
-                    }).then(function (response) {
+                
+                axios.put(`${this.ruta}/marca/actualizar/${this.marca.id}`, {                    
+                    'nombre': this.marca.nombre,
+                    'descripcion': this.marca.descripcion,
+                    'acceso': this.marca.acceso
+                }).then(function (response) {
+                    me.cerrarModalNuevoEditar();                    
+                    me.listarMarca();
+                    me.successMsg = true;
+                    me.txtSuccessMsg = 'La marca fue actualizada satisfactoriamente.';
+                    me.dismissCountDown = me.dismissSecs;
+                }).catch(function (error) {
+                    console.log(error);
+                    if (error.response.status==422) {
+                        me.errors = error.response.data.errors;
+                    }
+                    else {
                         me.cerrarModalNuevoEditar();                    
-                        me.listarMarca();
-                        me.successMsg = true;
-                        me.txtSuccessMsg = 'La marca fue actualizada satisfactoriamente.';
+                        me.errorMsg = true;
+                        me.txtErrorMsg = 'Error al actualizar la marca.';
                         me.dismissCountDown = me.dismissSecs;
-                    }).catch(function (error) {
-                        console.log(error);
-                        if (error.response.status==422) {
-                            me.errors = error.response.data.errors;
-                        }
-                        else {
-                            me.cerrarModalNuevoEditar();                    
-                            me.errorMsg = true;
-                            me.txtErrorMsg = 'Error al actualizar la marca.';
-                            me.dismissCountDown = me.dismissSecs;
-                        }                    
-                    });
-                }
-                else if (this.marca.acceso == 'publico') {
-                    this.marca.imagen.arrayBuffer().then(function (buffer) {
-                        axios.put(`${me.ruta}/marca/actualizar/${me.marca.id}`, {                    
-                            'nombre': me.marca.nombre,
-                            'descripcion': me.marca.descripcion,
-                            'acceso': me.marca.acceso,
-                            'imagen': me.getB64Str(buffer),
-                            'tipo': me.marca.imagen.type
-                        }).then(function (response) {
-                            me.cerrarModalNuevoEditar();                    
-                            me.listarMarca();
-                            me.successMsg = true;
-                            me.txtSuccessMsg = 'La marca fue actualizada satisfactoriamente.';
-                            me.dismissCountDown = me.dismissSecs;
-                        }).catch(function (error) {
-                            console.log(error);
-                            if (error.response.status==422) {
-                                me.errors = error.response.data.errors;
-                            }
-                            else {
-                                me.cerrarModalNuevoEditar();                    
-                                me.errorMsg = true;
-                                me.txtErrorMsg = 'Error al actualizar la marca.';
-                                me.dismissCountDown = me.dismissSecs;
-                            }                    
-                        })
-                    });
-                }               
+                    }                    
+                });                
             },
             cerrarModalNuevoEditar(){
                 this.modalNuevoEditar = false;
                 this.marca.nombre = '';
                 this.marca.descripcion = '';  
-                this.marca.acceso = 'privado';   
-                this.marca.imagen = ''; 
+                this.marca.acceso = 'privado';                   
                 this.errorMsg = false;
                 this.successMsg = false;
                 this.txtErrorMsg = '';
@@ -482,16 +400,7 @@
             },
             countDownChanged(dismissCountDown) {
                 this.dismissCountDown = dismissCountDown;
-            },
-            getB64Str(buffer) {
-                var binary = '';
-                var bytes = new Uint8Array(buffer);
-                var len = bytes.byteLength;
-                for (var i = 0; i < len; i++) {
-                    binary += String.fromCharCode(bytes[i]);
-                }
-                return window.btoa(binary);
-            },
+            },            
         },
         mounted() {
             this.listarMarca();            

@@ -131,14 +131,7 @@
                                     <option value="privado" selected>Privado</option>
                                     <option value="publico">Público</option>
                                 </select>
-                            </div>
-                            <div class="form-group" v-if="categoria.acceso == 'publico'">
-                                <label for="imagen">Elige una imagen</label>
-                                <div v-if="categoria.imagen">
-                                    <img :src="url_imagen" ref="mostrar_categoria_imagen" class="size_img">
-                                </div>
-                                <input ref="categoria_imagen" @change="adjuntarImagen" type="file" class="form-control-file" id="imagen" required>                                
-                            </div>                        
+                            </div>                                                  
                         </div>
                         <div class="modal-footer">
                             <b-button variant="secondary" @click="cerrarModalNuevoEditar">Cancelar</b-button>
@@ -183,8 +176,7 @@
                     id : 0,
                     nombre : '',
                     descripcion : '',
-                    acceso: 'privado',
-                    imagen : '',
+                    acceso: 'privado',                    
                 },
                 columnas: [                    
                     { key: 'opciones', label: 'Opciones', class: 'text-center' },
@@ -193,8 +185,7 @@
                     { key : 'acceso', label : 'Acceso', class: 'text-center' },
                     { key : 'condicion', label : 'Condición', class: 'text-center' },                    
                 ], 
-                categorias : [],
-                url_imagen : '',
+                categorias : [],                
                 tituloModalNuevoEditar : '',
                 tituloModalEliminar : '',
                 modalNuevoEditar : false,
@@ -219,17 +210,7 @@
                 errors : []                             
             }
         },        
-        methods : {
-            adjuntarImagen() {
-                this.categoria.imagen = this.$refs.categoria_imagen.files[0]
-                let reader = new FileReader()
-
-                reader.addEventListener('load', function() {
-                    this.$refs.mostrar_categoria_imagen.src = reader.result
-                }.bind(this), false)
-
-                reader.readAsDataURL(this.categoria.imagen)
-            },
+        methods : {            
             listarCategoria() {
                 let me = this;
 
@@ -262,8 +243,6 @@
                         this.categoria.nombre = data.nombre;
                         this.categoria.descripcion = data.descripcion;
                         this.categoria.acceso = data.acceso;
-                        this.categoria.imagen = data.imagen;
-                        this.url_imagen = `${this.ruta}/img/categorias/${data.imagen}`;
                         this.tipoAccion = 2;
                         break;
                     }
@@ -279,126 +258,64 @@
             },
             registrarCategoria() {
                 let me = this;
-                this.errors = [];                                    
-
-                if (this.categoria.acceso == 'privado') { //no publico
-                    axios.post(`${me.ruta}/categoria/registrar`, {
-                        'nombre': me.categoria.nombre,
-                        'descripcion': me.categoria.descripcion,
-                        'acceso': me.categoria.acceso
-                    }).then(function (response) {
-                        me.cerrarModalNuevoEditar();                    
-                        me.listarCategoria();
-                        me.successMsg = true;
-                        me.txtSuccessMsg = 'La categoría fue agregada satisfactoriamente.';
-                        me.dismissCountDown = me.dismissSecs;
-                                            
-                    }).catch(function (error) {
-                        console.log(error);
-                        if (error.response.status==422) {
-                            me.errors = error.response.data.errors;
-                        }
-                        else {
-                            me.cerrarModalNuevoEditar();                    
-                            me.errorMsg = true;
-                            me.txtErrorMsg = 'Error al agregar la categoría.';
-                            me.dismissCountDown = me.dismissSecs;
-                        }                    
-                    });
-                }
-                else if (this.categoria.acceso == 'publico') {
-                    this.categoria.imagen.arrayBuffer().then(function (buffer) {
-                        axios.post(`${me.ruta}/categoria/registrar`, {
-                            'nombre': me.categoria.nombre,
-                            'descripcion': me.categoria.descripcion,
-                            'acceso': me.categoria.acceso,
-                            'imagen': me.getB64Str(buffer),
-                            'tipo': me.categoria.imagen.type
-                        }).then(function (response) {
-                            me.cerrarModalNuevoEditar();                    
-                            me.listarCategoria();
-                            me.successMsg = true;
-                            me.txtSuccessMsg = 'La categoría fue agregada satisfactoriamente.';
-                            me.dismissCountDown = me.dismissSecs;
-                                                
-                        }).catch(function (error) {
-                            console.log(error);
-                            if (error.response.status==422) {
-                                me.errors = error.response.data.errors;
-                            }
-                            else {
-                                me.cerrarModalNuevoEditar();                    
-                                me.errorMsg = true;
-                                me.txtErrorMsg = 'Error al agregar la categoría.';
-                                me.dismissCountDown = me.dismissSecs;
-                            }                    
-                        })
-                    });
-                }               
+                this.errors = [];                           
+                
+                axios.post(`${me.ruta}/categoria/registrar`, {
+                    'nombre': me.categoria.nombre,
+                    'descripcion': me.categoria.descripcion,
+                    'acceso': me.categoria.acceso
+                }).then(function (response) {
+                    me.cerrarModalNuevoEditar();                    
+                    me.listarCategoria();
+                    me.successMsg = true;
+                    me.txtSuccessMsg = 'La categoría fue agregada satisfactoriamente.';
+                    me.dismissCountDown = me.dismissSecs;
+                                        
+                }).catch(function (error) {
+                    console.log(error);
+                    if (error.response.status==422) {
+                        me.errors = error.response.data.errors;
+                    }
+                    else {
+                        me.cerrarModalNuevoEditar()
+                        me.errorMsg = true
+                        me.txtErrorMsg = 'Error al agregar la categoría.'
+                        me.dismissCountDown = me.dismissSecs
+                    }                    
+                })               
             },
             actualizarCategoria(){
                 let me = this;
                 this.errors = [];
 
-                if (this.categoria.acceso == 'privado') { //no publico
-                    axios.put(`${me.ruta}/categoria/actualizar/${me.categoria.id}`, {                    
-                        'nombre': me.categoria.nombre,
-                        'descripcion': me.categoria.descripcion,
-                        'acceso': me.categoria.acceso
-                    }).then(function (response) {
+                axios.put(`${me.ruta}/categoria/actualizar/${me.categoria.id}`, {                    
+                    'nombre': me.categoria.nombre,
+                    'descripcion': me.categoria.descripcion,
+                    'acceso': me.categoria.acceso
+                }).then(function (response) {
+                    me.cerrarModalNuevoEditar();                    
+                    me.listarCategoria();
+                    me.successMsg = true;
+                    me.txtSuccessMsg = 'La categoría fue actualizada satisfactoriamente.';
+                    me.dismissCountDown = me.dismissSecs;
+                }).catch(function (error) {
+                    console.log(error);
+                    if (error.response.status==422) {
+                        me.errors = error.response.data.errors;
+                    }
+                    else {
                         me.cerrarModalNuevoEditar();                    
-                        me.listarCategoria();
-                        me.successMsg = true;
-                        me.txtSuccessMsg = 'La categoría fue actualizada satisfactoriamente.';
+                        me.errorMsg = true;
+                        me.txtErrorMsg = 'Error al actualizar la categoría.';
                         me.dismissCountDown = me.dismissSecs;
-                    }).catch(function (error) {
-                        console.log(error);
-                        if (error.response.status==422) {
-                            me.errors = error.response.data.errors;
-                        }
-                        else {
-                            me.cerrarModalNuevoEditar();                    
-                            me.errorMsg = true;
-                            me.txtErrorMsg = 'Error al actualizar la categoría.';
-                            me.dismissCountDown = me.dismissSecs;
-                        }                    
-                    });
-                }
-                else if (this.categoria.acceso == 'publico') {
-                    this.categoria.imagen.arrayBuffer().then(function (buffer) {
-                        axios.put(`${me.ruta}/categoria/actualizar/${me.categoria.id}`, {                    
-                            'nombre': me.categoria.nombre,
-                            'descripcion': me.categoria.descripcion,
-                            'acceso': me.categoria.acceso,
-                            'imagen': me.getB64Str(buffer),
-                            'tipo': me.categoria.imagen.type
-                        }).then(function (response) {
-                            me.cerrarModalNuevoEditar();                    
-                            me.listarCategoria();
-                            me.successMsg = true;
-                            me.txtSuccessMsg = 'La categoría fue actualizada satisfactoriamente.';
-                            me.dismissCountDown = me.dismissSecs;
-                        }).catch(function (error) {
-                            console.log(error);
-                            if (error.response.status==422) {
-                                me.errors = error.response.data.errors;
-                            }
-                            else {
-                                me.cerrarModalNuevoEditar();                    
-                                me.errorMsg = true;
-                                me.txtErrorMsg = 'Error al actualizar la categoría.';
-                                me.dismissCountDown = me.dismissSecs;
-                            }                    
-                        })
-                    });
-                }                
+                    }                    
+                });                
             },
             cerrarModalNuevoEditar() {
                 this.modalNuevoEditar = false;
                 this.categoria.nombre = '';
                 this.categoria.descripcion = '';   
-                this.categoria.acceso = 'privado';   
-                this.categoria.imagen = '';   
+                this.categoria.acceso = 'privado';                   
                 this.errorMsg = false;
                 this.successMsg = false;
                 this.txtErrorMsg = '';
@@ -480,16 +397,7 @@
             },
             countDownChanged(dismissCountDown) {
                 this.dismissCountDown = dismissCountDown;
-            },
-            getB64Str(buffer) {
-                var binary = '';
-                var bytes = new Uint8Array(buffer);
-                var len = bytes.byteLength;
-                for (var i = 0; i < len; i++) {
-                    binary += String.fromCharCode(bytes[i]);
-                }
-                return window.btoa(binary);
-            },
+            },            
         },
         mounted() {
             this.listarCategoria();            
