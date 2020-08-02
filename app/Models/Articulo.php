@@ -16,6 +16,8 @@ class Articulo extends Model
         'precio_venta',
         'stock',
         'descripcion',
+        'acceso',
+        'imagen',
         'condicion'
     ];
 
@@ -36,7 +38,7 @@ class Articulo extends Model
                                  'categorias.id as idcategoria', 'marcas.id as idmarca',
                                  'categorias.nombre as categoria', 'marcas.nombre as marca',
                                  'articulos.precio_compra', 'articulos.precio_venta', 'articulos.stock',
-                                 'articulos.descripcion', 'articulos.condicion')
+                                 'articulos.descripcion', 'articulos.acceso', 'articulos.imagen', 'articulos.condicion')
                         ->orderBy('articulos.id', 'desc')
                         ->get();
 

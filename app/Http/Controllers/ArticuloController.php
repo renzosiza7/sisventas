@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use File;
 use Illuminate\Http\Request;
 use App\Models\Categoria;
 use App\Models\Marca;
@@ -90,6 +91,14 @@ class ArticuloController extends Controller
     {
         if (!$request->ajax()) return redirect('/');
 
+        //$files = $request->file('imagen');
+
+        //\Log::info($files->getClientOriginalExtension());        
+        
+        //$img = base64_encode(file_get_contents($_FILES['imagen']['tmp_name']));
+
+        //\Log::info($img);            
+
         $this->validate($request, [
             'codigo' => 'required|max:50|unique:articulos',
             'nombre' => 'required|max:100',            
@@ -97,7 +106,8 @@ class ArticuloController extends Controller
             'idmarca' => 'required',
             'precio_venta' => 'required|numeric',
             'stock' => 'required|integer',
-            'descripcion' => 'nullable|max:256'
+            'descripcion' => 'nullable|max:256',
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ],
         [
             'idcategoria.required' => 'El campo categoría es obligatorio.',            
@@ -117,7 +127,16 @@ class ArticuloController extends Controller
         $articulo->precio_venta = $request->precio_venta;
         $articulo->stock = $request->stock;
         $articulo->descripcion = $request->descripcion;
+        $articulo->acceso = $request->acceso;
         $articulo->condicion = '1';
+
+        if ($files = $request->file('imagen')) {        
+            //insert new file
+            $destinationPath = public_path() . '/img/articulos/'; // upload path
+            $profileImage = date('YmdHis') . "." . $files->getClientOriginalExtension();
+            $files->move($destinationPath, $profileImage);
+            $articulo->imagen = $profileImage;
+        }
 
         $articulo->save();
     }
@@ -182,7 +201,23 @@ class ArticuloController extends Controller
         $articulo->precio_venta = $request->precio_venta;
         $articulo->stock = $request->stock;
         $articulo->descripcion = $request->descripcion;
+        $articulo->acceso = $request->acceso;
         $articulo->condicion = '1';
+
+        if ($articulo->acceso == 'privado') {
+            //delete old file
+            File::delete(public_path() . $request->url_imagen);
+            $articulo->imagen = null;
+        }
+
+        if ($files = $request->file('imagen')) {             
+             
+            //insert new file
+            $destinationPath = public_path() . '/img/articulos/'; // upload path
+            $profileImage = date('YmdHis') . "." . $files->getClientOriginalExtension();
+            $files->move($destinationPath, $profileImage);
+            $articulo->imagen = $profileImage;
+        }
 
         $articulo->save();
     }

@@ -259,7 +259,7 @@ Route::group(['middleware'=>['auth']],function(){
          */
         Route::get('/articulo', 'ArticuloController@index');
         Route::post('/articulo/registrar', 'ArticuloController@store');
-        Route::put('/articulo/actualizar/{id}', 'ArticuloController@update');
+        Route::post('/articulo/actualizar/{id}', 'ArticuloController@update');
         Route::put('/articulo/activar/{id}', 'ArticuloController@activar');
         Route::put('/articulo/desactivar/{id}', 'ArticuloController@desactivar');
         Route::get('/articulo/buscarArticulo', 'ArticuloController@buscarArticulo');

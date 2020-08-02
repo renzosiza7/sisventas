@@ -139,8 +139,8 @@
                             <span aria-hidden="true">×</span>
                         </button>
                     </div>
-                    <div class="modal-body">
-                        <form role="form">
+                    <form role="form" @submit.prevent="tipoAccion == 1 ? registrarArticulo() : actualizarArticulo()">
+                    <div class="modal-body">                        
                             <div class="form-row">
                                 <div class="form-group col-md-4">
                                     <label for="codigo">Código</label>
@@ -225,7 +225,7 @@
                             <div class="form-row">
                                 <div class="form-group col-md-4">
                                     <label for="precio_venta">Precio Compra</label>
-                                    <input type="text" v-model="articulo.precio_compra" class="form-control text-center" id="precio_venta">                                    
+                                    <input type="text" v-model="articulo.precio_compra" class="form-control text-center" id="compra">                                    
                                 </div>     
                                 <div class="form-group col-md-4">
                                     <label for="precio_venta">Precio Venta</label>
@@ -239,19 +239,37 @@
                                 </div>
                             </div>
                             <div class="form-row">
-                                <div class="form-group col-md-12">
+                                <div class="form-group col-md-6">
                                     <label for="descripcion">Descripción</label>
                                     <textarea v-model="articulo.descripcion" rows="1" id="descripcion" class="form-control"></textarea>                                                                
                                     <span v-if="errors.descripcion" class="error">{{ errors.descripcion[0] }}</span>
-                                </div>                
-                            </div>                                        
-                        </form>
+                                </div>    
+                                <div class="form-group col-md-6">
+                                    <label for="acceso">Acceso</label>
+                                    <select v-model="articulo.acceso" class="form-control" id="acceso">
+                                        <option value="privado" selected>Privado</option>
+                                        <option value="publico">Público</option>
+                                    </select>
+                                </div>              
+                            </div> 
+                            <div class="form-row">
+                                <div class="form-group" v-if="articulo.acceso == 'publico'">
+                                    <!--<label for="imagen">Elige una imagen</label>-->
+                                    <div v-if="articulo.imagen">
+                                        <img :src="url_imagen" ref="mostrar_articulo_imagen" class="size_img">
+                                    </div>
+                                    <input ref="articulo_imagen" @change="adjuntarImagen" type="file" class="form-control-file" id="imagen" required>
+                                    <span v-if="errors.imagen" class="error">{{ errors.imagen[0] }}</span>
+                                </div>                            
+                            </div>                                         
+                        
                     </div>
                     <div class="modal-footer">
                         <b-button variant="secondary" @click="cerrarModalNuevoEditar">Cancelar</b-button>
-                        <b-button v-if="tipoAccion == 1" variant="success" @click="registrarArticulo">Guardar</b-button>
-                        <b-button v-else variant="success" @click="actualizarArticulo">Actualizar</b-button>
+                        <b-button type="submit" v-if="tipoAccion == 1" variant="success">Guardar</b-button>
+                        <b-button type="submit" v-else variant="success">Actualizar</b-button>
                     </div>
+                    </form>
                 </div>
             </div>
         </div><!--Fin del modal-->  
@@ -297,6 +315,8 @@
                     precio_venta : 0,
                     stock : 0,                    
                     descripcion : '',
+                    acceso: 'privado',
+                    imagen : '',
                 },      
                 categoriasActivas : [],
                 categorias : [],
@@ -324,6 +344,7 @@
                     { key : 'condicion', label : 'Condición', class: 'text-center' },            
                 ], 
                 articulos : [],
+                url_imagen : '',
                 tituloModalNuevoEditar : '',
                 tituloModalEliminar : '',
                 modalNuevoEditar : false,
@@ -352,6 +373,14 @@
             'barcode': VueBarcode
         },
         methods : {
+            adjuntarImagen() {
+                this.articulo.imagen = this.$refs.articulo_imagen.files[0]
+                let reader = new FileReader()
+                reader.addEventListener('load', function() {
+                    this.$refs.mostrar_articulo_imagen.src = reader.result
+                }.bind(this), false)
+                reader.readAsDataURL(this.articulo.imagen)
+            },
             listarArticulo() {
                 let me = this;
 
@@ -425,6 +454,7 @@
                         this.articulo.precio_venta = '';
                         this.articulo.stock = '';
                         this.articulo.descripcion = '';
+                        this.articulo.acceso = 'privado';
                         this.tipoAccion = 1; //registrar
                         break;
                     }
@@ -440,6 +470,9 @@
                         this.articulo.precio_venta = data.precio_venta;
                         this.articulo.stock = data.stock;
                         this.articulo.descripcion = data.descripcion;
+                        this.articulo.acceso = data.acceso;
+                        this.articulo.imagen = data.imagen;
+                        this.url_imagen = '/img/articulos/' + data.imagen;
                         this.tipoAccion = 2;
                         break;
                     }
@@ -449,15 +482,24 @@
                 let me = this;
                 this.errors = [];
 
-                axios.post(`${this.ruta}/articulo/registrar`, {
-                    'codigo': this.articulo.codigo,
-                    'nombre': this.articulo.nombre,
-                    'idcategoria': this.articulo.idcategoria,
-                    'idmarca': this.articulo.idmarca,
-                    'precio_compra': this.articulo.precio_compra,
-                    'precio_venta': this.articulo.precio_venta,
-                    'stock': this.articulo.stock,
-                    'descripcion': this.articulo.descripcion,
+                let formData = new FormData();
+
+                formData.append('codigo', this.articulo.codigo);                
+                formData.append('nombre', this.articulo.nombre);                
+                formData.append('idcategoria', this.articulo.idcategoria);                
+                formData.append('idmarca', this.articulo.idmarca);                
+                formData.append('precio_compra', this.articulo.precio_compra);                
+                formData.append('precio_venta', this.articulo.precio_venta);                
+                formData.append('stock', this.articulo.stock);                
+                formData.append('descripcion', this.articulo.descripcion);                
+                formData.append('acceso', this.articulo.acceso);     
+                formData.append('imagen', this.articulo.imagen);               
+
+                axios.post(`${this.ruta}/articulo/registrar`, formData,
+                    {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
                 }).then(function (response) {
                     me.cerrarModalNuevoEditar();                    
                     me.listarArticulo();
@@ -482,15 +524,25 @@
                 let me = this;
                 this.errors = [];
 
-                axios.put(`${this.ruta}/articulo/actualizar/${this.articulo.id}`, {                    
-                    'codigo': this.articulo.codigo,
-                    'nombre': this.articulo.nombre,
-                    'idcategoria': this.articulo.idcategoria,
-                    'idmarca': this.articulo.idmarca,
-                    'precio_compra': this.articulo.precio_compra,
-                    'precio_venta': this.articulo.precio_venta,
-                    'stock': this.articulo.stock,
-                    'descripcion': this.articulo.descripcion,
+                let formData = new FormData();
+
+                formData.append('codigo', this.articulo.codigo);                
+                formData.append('nombre', this.articulo.nombre);                
+                formData.append('idcategoria', this.articulo.idcategoria);                
+                formData.append('idmarca', this.articulo.idmarca);                
+                formData.append('precio_compra', this.articulo.precio_compra);                
+                formData.append('precio_venta', this.articulo.precio_venta);                
+                formData.append('stock', this.articulo.stock);                
+                formData.append('descripcion', this.articulo.descripcion);                
+                formData.append('acceso', this.articulo.acceso);     
+                formData.append('imagen', this.articulo.imagen);
+                formData.append('url_imagen', this.url_imagen);
+
+                axios.post(`${this.ruta}/articulo/actualizar/${this.articulo.id}`, formData,
+                    {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
                 }).then(function (response) {
                     me.cerrarModalNuevoEditar();                    
                     me.listarArticulo();
@@ -519,7 +571,9 @@
                 this.articulo.precio_compra = '';
                 this.articulo.precio_venta = '';
                 this.articulo.stock = '';
-                this.articulo.descripcion = '';   
+                this.articulo.descripcion = '';
+                this.articulo.acceso = 'privado';   
+                this.articulo.imagen = '';      
                 this.errorMsg = false;
                 this.successMsg = false;
                 this.txtErrorMsg = '';
@@ -669,5 +723,8 @@
     .style-chooser .vs__dropdown-toggle,
     .style-chooser .vs__dropdown-menu {    
         max-height: 150px;
+    }
+    .size_img {
+        width: 150px;
     }
 </style>

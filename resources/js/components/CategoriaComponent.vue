@@ -113,11 +113,11 @@
                             <span aria-hidden="true">×</span>
                         </button>
                     </div>
-                    <form role="form" @submit.prevent="guardarCategoria">
+                    <form role="form" @submit.prevent="tipoAccion == 1 ? registrarCategoria() : actualizarCategoria()">
                         <div class="modal-body">                        
                             <div class="form-group">
                                 <label for="nombre_categoria">Nombre</label>
-                                <input type="text"  v-model="categoria.nombre" class="form-control" id="nombre_categoria" placeholder="Nombre de categoría"/>                                
+                                <input type="text" v-model="categoria.nombre" class="form-control" id="nombre_categoria" placeholder="Nombre de categoría"/>                                
                                 <span v-if="errors.nombre" class="error">{{ errors.nombre[0] }}</span>
                             </div>
                             <div class="form-group">
@@ -248,14 +248,14 @@
                     }
                 }
             },
-            guardarCategoria() {
+            /*guardarCategoria() {
                 if (this.tipoAccion == 1) {                    
                     this.registrarCategoria()
                 }
                 else {
                     this.actualizarCategoria()
                 }
-            },
+            },*/
             registrarCategoria() {
                 let me = this;
                 this.errors = [];                           
