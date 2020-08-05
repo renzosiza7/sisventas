@@ -76,19 +76,19 @@ const app = new Vue({
         notifications : []
     },
     created() {
-        let me = this;
+      let me = this;
 
-        axios.post('notification/get').then(function(response){
-          me.notifications = response.data;
-        }).catch(function(error) {
-          console.log(error);
-        });
+      axios.post('notification/get').then(function(response){
+        me.notifications = response.data;
+      }).catch(function(error) {
+        console.log(error);
+      });
 
-        var userId = $('meta[name="userId"]').attr('content');
+      var userId = $('meta[name="userId"]').attr('content');
 
-        window.Echo.private('App.User.' + userId).notification((notification) => {
-          me.notifications.unshift(notification);          
-        });
+      window.Echo.private('App.User.' + userId).notification((notification) => {
+        me.notifications.unshift(notification);          
+      });
     },
     methods: {
         cambiarMenu(nuevo_menu) {                          

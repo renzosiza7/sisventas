@@ -79,6 +79,14 @@
                         </template>
 
                         <template slot="opciones" slot-scope="row">
+                            <b-button size="sm" @click="row.toggleDetails">
+                                <template v-if="row.detailsShowing">
+                                    <i class="icon-minus"></i>
+                                </template>
+                                <template v-else>
+                                    <i class="icon-plus"></i>    
+                                </template>                                
+                            </b-button>
                             <b-button variant="warning" size="sm" @click="abrirModalNuevoEditar('actualizar', row.item)">
                                 <i class="icon-pencil"></i>
                             </b-button>                            
@@ -88,8 +96,26 @@
                             <b-button variant="success" size="sm" v-else @click="abrirModalEliminar('activar', row.item)">
                                 <i class="icon-check"></i>
                             </b-button>      
-                        </template>                  
-
+                        </template>       
+                        <template v-slot:row-details="row">
+                            <b-card>
+                                <ul>
+                                    <li v-for="(value, key) in row.item" :key="key" v-show="key=='precio_venta' || key=='stock' || key == 'precio_compra' || key == 'condicion'">                                        
+                                        <h5>
+                                            <template v-if="key=='condicion' && value == 1">
+                                                <b>{{ key }}:</b> Activo
+                                            </template>
+                                            <template v-else-if="key=='condicion' && value == 0">
+                                                <b>{{ key }}:</b> Inactivo
+                                            </template>
+                                            <template v-else>
+                                                <b>{{ key }}:</b> {{ value }}    
+                                            </template>                                       
+                                        </h5>
+                                    </li>
+                                </ul>
+                            </b-card>
+                        </template>    
                     </b-table>
                     <b-table 
                         striped 
@@ -328,10 +354,11 @@
                     { key : 'nombre', label : 'Artículo', sortable: true },
                     { key : 'categoria', label : 'Categoría', sortable: true },
                     { key : 'marca', label : 'Marca', sortable: true },        
-                    { key : 'precio_compra', label : 'P. Compra', class: 'text-center' },
-                    { key : 'precio_venta', label : 'P. Venta', class: 'text-center' },            
-                    { key : 'stock', label : 'Stock', class: 'text-center' },            
-                    { key : 'condicion', label : 'Condición', class: 'text-center' },            
+                    //{ key : 'precio_compra', label : 'P. Compra', class: 'text-center' },
+                    //{ key : 'precio_venta', label : 'P. Venta', class: 'text-center' },            
+                    //{ key : 'stock', label : 'Stock', class: 'text-center' },            
+					{ key : 'acceso', label : 'Acceso', class: 'text-center' },            
+                    //{ key : 'condicion', label : 'Condición', class: 'text-center' },            
                 ], 
                 columnas2: [// columnas para vendedor y cajero sin opciones                    
                     { key : 'codigo', label : 'Código', class: 'text-center' },
@@ -472,7 +499,7 @@
                         this.articulo.descripcion = data.descripcion;
                         this.articulo.acceso = data.acceso;
                         this.articulo.imagen = data.imagen;
-                        this.url_imagen = '/img/articulos/' + data.imagen;
+                        this.url_imagen = `${this.ruta}/img/articulos/${data.imagen}`;						 
                         this.tipoAccion = 2;
                         break;
                     }
