@@ -243,6 +243,11 @@ Route::group(['middleware'=>['auth']],function(){
         Route::get('/categoria/select_categoria', 'CategoriaController@getCategoriasActivas');
         Route::get('/categoria/listarPdf','CategoriaController@listarPdf')->name('categorias_pdf');
 
+        //Route::get('/facturacion/generar_xml','CategoriaController@generar_xml')->name('generar_xml');
+        Route::get('/facturacion/generar_xml', function () {
+            return view('facturacion.factura');
+        });
+
         /**
          * Marcas
          */

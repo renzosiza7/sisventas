@@ -16,6 +16,9 @@
                     <button type="button" @click="cargarPdf()" class="btn btn-info">
                         <i class="icon-doc"></i>&nbsp;Reporte
                     </button>
+                    <button type="button" @click="generar_xml()" class="btn btn-danger">
+                        <i class="icon-doc"></i>&nbsp;Crear factura
+                    </button>
                 </div>
                 <div class="card-body"> 
                     <b-alert
@@ -389,6 +392,9 @@
             },
             cargarPdf(){
                 window.open(this.ruta + '/categoria/listarPdf','_blank');
+            },
+            generar_xml(){
+                window.open(this.ruta + '/facturacion/generar_xml','_blank');
             },
             onFiltered(filteredItems) {
                 // Trigger pagination to update the number of buttons/pages due to filtering

@@ -99,20 +99,10 @@
                         </template>       
                         <template v-slot:row-details="row">
                             <b-card>
-                                <ul>
-                                    <li v-for="(value, key) in row.item" :key="key" v-show="key=='precio_venta' || key=='stock' || key == 'precio_compra' || key == 'condicion'">                                        
-                                        <h5>
-                                            <template v-if="key=='condicion' && value == 1">
-                                                <b>{{ key }}:</b> Activo
-                                            </template>
-                                            <template v-else-if="key=='condicion' && value == 0">
-                                                <b>{{ key }}:</b> Inactivo
-                                            </template>
-                                            <template v-else>
-                                                <b>{{ key }}:</b> {{ value }}    
-                                            </template>                                       
-                                        </h5>
-                                    </li>
+                                <ul>                                    
+                                    <li><b>Categoría:</b> {{ row.item.categoria }}</li>
+                                    <li><b>Marca:</b> {{ row.item.marca }}</li>                                        
+                                    <li><b>Precio de compra:</b> {{ row.item.precio_compra }}</li>
                                 </ul>
                             </b-card>
                         </template>    
@@ -352,13 +342,13 @@
                     { key: 'opciones', label: 'Opciones', class: 'text-center' },
                     { key : 'codigo', label : 'Código', class: 'text-center' },
                     { key : 'nombre', label : 'Artículo', sortable: true },
-                    { key : 'categoria', label : 'Categoría', sortable: true },
-                    { key : 'marca', label : 'Marca', sortable: true },        
+                    //{ key : 'categoria', label : 'Categoría', sortable: true },
+                    //{ key : 'marca', label : 'Marca', sortable: true },        
                     //{ key : 'precio_compra', label : 'P. Compra', class: 'text-center' },
-                    //{ key : 'precio_venta', label : 'P. Venta', class: 'text-center' },            
-                    //{ key : 'stock', label : 'Stock', class: 'text-center' },            
+                    { key : 'precio_venta', label : 'P. Venta', class: 'text-center' },            
+                    { key : 'stock', label : 'Stock', class: 'text-center' },            
 					{ key : 'acceso', label : 'Acceso', class: 'text-center' },            
-                    //{ key : 'condicion', label : 'Condición', class: 'text-center' },            
+                    { key : 'condicion', label : 'Condición', class: 'text-center' },            
                 ], 
                 columnas2: [// columnas para vendedor y cajero sin opciones                    
                     { key : 'codigo', label : 'Código', class: 'text-center' },
