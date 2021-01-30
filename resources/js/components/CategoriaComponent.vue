@@ -1,12 +1,10 @@
 <template>
-    <main class="main">
-        <!-- Breadcrumb -->
+    <main class="main">        
         <ol class="breadcrumb">            
             <li class="breadcrumb-item"><a href="/">Inicio</a></li>
             <li class="breadcrumb-item active">Categorías</li>
         </ol>
-        <div class="container-fluid">
-            <!-- Ejemplo de tabla Listado -->
+        <div class="container-fluid">            
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Categorías
@@ -212,17 +210,18 @@
                 dismissCountDown: 0,
                 errors : []                             
             }
+        },
+        created() {
+            this.listarCategoria();            
         },        
         methods : {            
-            listarCategoria() {
-                let me = this;
-
+            listarCategoria() {              
                 axios.get(`${this.ruta}/categoria`)
-                .then(function (response) {                                                        
-                    me.categorias = response.data;                    
-                    me.totalRows = me.categorias.length;
+                .then(response => {                                                        
+                    this.categorias = response.data;                    
+                    this.totalRows = this.categorias.length;
                 })
-                .catch(function (error) {                    
+                .catch(error => {                    
                     console.log(error);
                 });
             },
@@ -259,23 +258,20 @@
                     this.actualizarCategoria()
                 }
             },*/
-            registrarCategoria() {
-                let me = this;
+            registrarCategoria() {                
                 this.errors = [];                           
                 
-                axios.post(`${me.ruta}/categoria/registrar`, {
-                    'nombre': me.categoria.nombre,
-                    'descripcion': me.categoria.descripcion,
-                    'acceso': me.categoria.acceso
-                }).then(function (response) {
-                    me.cerrarModalNuevoEditar();                    
-                    me.listarCategoria();
-                    me.successMsg = true;
-                    me.txtSuccessMsg = 'La categoría fue agregada satisfactoriamente.';
-                    me.dismissCountDown = me.dismissSecs;
-                                        
-                }).catch(function (error) {
-                    console.log(error);
+                axios.post(`${this.ruta}/categoria/registrar`, {
+                    'nombre': this.categoria.nombre,
+                    'descripcion': this.categoria.descripcion,
+                    'acceso': this.categoria.acceso
+                }).then(response => {
+                    this.cerrarModalNuevoEditar();                    
+                    this.listarCategoria();
+                    this.successMsg = true;
+                    this.txtSuccessMsg = 'La categoría fue agregada satisfactoriamente.';
+                    this.dismissCountDown = this.dismissSecs;                                        
+                }).catch(error => {                    
                     if (error.response.status==422) {
                         me.errors = error.response.data.errors;
                     }
@@ -287,30 +283,28 @@
                     }                    
                 })               
             },
-            actualizarCategoria(){
-                let me = this;
+            actualizarCategoria() {                
                 this.errors = [];
 
-                axios.put(`${me.ruta}/categoria/actualizar/${me.categoria.id}`, {                    
-                    'nombre': me.categoria.nombre,
-                    'descripcion': me.categoria.descripcion,
-                    'acceso': me.categoria.acceso
-                }).then(function (response) {
-                    me.cerrarModalNuevoEditar();                    
-                    me.listarCategoria();
-                    me.successMsg = true;
-                    me.txtSuccessMsg = 'La categoría fue actualizada satisfactoriamente.';
-                    me.dismissCountDown = me.dismissSecs;
-                }).catch(function (error) {
-                    console.log(error);
+                axios.put(`${this.ruta}/categoria/actualizar/${this.categoria.id}`, {                    
+                    'nombre': this.categoria.nombre,
+                    'descripcion': this.categoria.descripcion,
+                    'acceso': this.categoria.acceso
+                }).then(response => {
+                    this.cerrarModalNuevoEditar();                    
+                    this.listarCategoria();
+                    this.successMsg = true;
+                    this.txtSuccessMsg = 'La categoría fue actualizada satisfactoriamente.';
+                    this.dismissCountDown = this.dismissSecs;
+                }).catch(error => {                    
                     if (error.response.status==422) {
-                        me.errors = error.response.data.errors;
+                        this.errors = error.response.data.errors;
                     }
                     else {
-                        me.cerrarModalNuevoEditar();                    
-                        me.errorMsg = true;
-                        me.txtErrorMsg = 'Error al actualizar la categoría.';
-                        me.dismissCountDown = me.dismissSecs;
+                        this.cerrarModalNuevoEditar();                    
+                        this.errorMsg = true;
+                        this.txtErrorMsg = 'Error al actualizar la categoría.';
+                        this.dismissCountDown = this.dismissSecs;
                     }                    
                 });                
             },
@@ -347,40 +341,34 @@
                     }
                 }               
             },
-            activarCategoria() {
-                let me = this;                
-
+            activarCategoria() {                          
                 axios.put(`${this.ruta}/categoria/activar/${this.categoria.id}`)
-                .then(function (response) {
-                    me.cerrarModalEliminar();                    
-                    me.listarCategoria();
-                    me.successMsg = true;
-                    me.txtSuccessMsg = 'La categoría fue activada satisfactoriamente.';
-                    me.dismissCountDown = me.dismissSecs;
-                }).catch(function (error) {
-                    //console.log(error);
-                    me.cerrarModalEliminar();         
-                    me.errorMsg = true;
-                    me.txtErrorMsg = 'Error al activar la categoría.';
-                    me.dismissCountDown = me.dismissSecs;                    
+                .then(response => {
+                    this.cerrarModalEliminar();                    
+                    this.listarCategoria();
+                    this.successMsg = true;
+                    this.txtSuccessMsg = 'La categoría fue activada satisfactoriamente.';
+                    this.dismissCountDown = this.dismissSecs;
+                }).catch(error => {                    
+                    this.cerrarModalEliminar();         
+                    this.errorMsg = true;
+                    this.txtErrorMsg = 'Error al activar la categoría.';
+                    this.dismissCountDown = this.dismissSecs;                    
                 });
             },
-            desactivarCategoria() {
-                let me = this;                
-
+            desactivarCategoria() {              
                 axios.put(`${this.ruta}/categoria/desactivar/${this.categoria.id}`)
-                .then(function (response) {
-                    me.cerrarModalEliminar();                    
-                    me.listarCategoria();
-                    me.successMsg = true;
-                    me.txtSuccessMsg = 'La categoría fue desactivada satisfactoriamente.';
-                    me.dismissCountDown = me.dismissSecs;
-                }).catch(function (error) {
-                    //console.log(error);
-                    me.cerrarModalEliminar();         
-                    me.errorMsg = true;
-                    me.txtErrorMsg = 'Error al desactivar la categoría.';
-                    me.dismissCountDown = me.dismissSecs;                                        
+                .then(response => {
+                    this.cerrarModalEliminar();                    
+                    this.listarCategoria();
+                    this.successMsg = true;
+                    this.txtSuccessMsg = 'La categoría fue desactivada satisfactoriamente.';
+                    this.dismissCountDown = this.dismissSecs;
+                }).catch(error => {                    
+                    this.cerrarModalEliminar();         
+                    this.errorMsg = true;
+                    this.txtErrorMsg = 'Error al desactivar la categoría.';
+                    this.dismissCountDown = this.dismissSecs;                                        
                 });
             },
             cerrarModalEliminar() {
@@ -394,20 +382,23 @@
                 window.open(this.ruta + '/categoria/listarPdf','_blank');
             },
             generar_xml(){
-                window.open(this.ruta + '/facturacion/generar_xml','_blank');
+                let me = this
+                //window.open(this.ruta + '/facturacion/generar_xml','_blank');
+                axios.post(`${me.ruta}/factura/registrar`, {                    
+                }).then(function (response) {                    
+                    console.log(response.data)                    
+                }).catch(function (error) {
+                    
+                })
             },
-            onFiltered(filteredItems) {
-                // Trigger pagination to update the number of buttons/pages due to filtering
+            onFiltered(filteredItems) {                
                 this.totalRows = filteredItems.length;
                 this.currentPage = 1;
             },
             countDownChanged(dismissCountDown) {
                 this.dismissCountDown = dismissCountDown;
             },            
-        },
-        mounted() {
-            this.listarCategoria();            
-        }
+        },        
     }
 </script>
 <style scoped>

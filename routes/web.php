@@ -310,6 +310,8 @@ Route::group(['middleware'=>['auth']],function(){
         Route::get('/venta/pdfTicket/{id}','VentaController@pdfTicket')->name('ventaticket_pdf');
         Route::get('/venta/listarPdf','VentaController@listarPdf')->name('ventas_pdf');
 
+        Route::post('/factura/registrar', 'FacturaController@enviarSunat');
+
         /**
          * Servicios
          */

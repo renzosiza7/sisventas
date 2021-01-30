@@ -1,12 +1,10 @@
 <template>
-    <main class="main">
-        <!-- Breadcrumb -->
+    <main class="main">        
         <ol class="breadcrumb">            
             <li class="breadcrumb-item"><a href="/">Inicio</a></li>
             <li class="breadcrumb-item active">Clientes</li>
         </ol>
-        <div class="container-fluid">
-            <!-- Ejemplo de tabla Listado -->
+        <div class="container-fluid">            
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Clientes
@@ -40,18 +38,18 @@
                     </b-alert>
 
                     <b-row>
-                        <b-col md="4" class="my-1">
+                        <b-col sm="12" md="4" lg="4" class="my-1">
                             <b-form-group label-cols-sm="6" label="Registros por página: " class="mb-0">
                                 <b-form-select v-model="perPage" :options="pageOptions"></b-form-select>
                             </b-form-group>
                         </b-col>
-                        <b-col offset-md="4" md="4" class="my-1">
+                        <b-col sm="12" offset-md="3" md="5" lg="5" class="my-1">
                             <b-form-group label-cols-sm="3" label="Buscar: " class="mb-0">
                                 <b-input-group>
                                     <b-form-input v-model="filter" placeholder="Escriba el texto a buscar..."></b-form-input>
-                                    <!--<b-input-group-append>
-                                        <b-button :disabled="!filter" @click="filter = ''">Clear</b-button>
-                                    </b-input-group-append>-->
+                                    <b-input-group-append>
+                                        <b-button :disabled="!filter" @click="filter = ''">Limpiar</b-button>
+                                    </b-input-group-append>
                                 </b-input-group>
                             </b-form-group>
                         </b-col>                        
@@ -72,6 +70,9 @@
                         :sort-direction="sortDirection"
                         @filtered="onFiltered"               
                     >
+                        <template slot="documento" slot-scope="row">
+                            {{ row.item.tipo_documento }} - {{ row.item.num_documento }}
+                        </template>
                         <template slot="opciones" slot-scope="row">
                             <b-button variant="warning" size="sm" @click="abrirModalNuevoEditar('actualizar', row.item)">
                                 <i class="icon-pencil"></i>
@@ -177,8 +178,7 @@
                 columnas: [                    
                     { key: 'opciones', label: 'Opciones', class: 'text-center' },
                     { key : 'nombre', label : 'Nombre', sortable: true },
-                    { key : 'tipo_documento', label : 'Tipo Documento', class: 'text-center' },
-                    { key : 'num_documento', label : 'Número', class: 'text-center' },
+                    { key : 'documento', label : 'Documento' },                    
                     { key : 'direccion', label : 'Dirección' },         
                     { key : 'telefono', label : 'Teléfono', class: 'text-center' },         
                     { key : 'email', label : 'email', class: 'text-center' },                                                               

@@ -73,7 +73,7 @@
                         @filtered="onFiltered"               
                     >
                         <template slot="documento" slot-scope="row">
-                            {{row.item.tipo_documento }} {{ row.item.num_documento }}                  
+                            {{row.item.tipo_documento }} - {{ row.item.num_documento }}                  
                         </template>
                         <template slot="opciones" slot-scope="row">
                             <b-button variant="warning" size="sm" @click="abrirModalNuevoEditar('actualizar', row.item)">
