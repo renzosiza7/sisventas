@@ -30,18 +30,18 @@
                 </b-alert>
 
                 <b-row>
-                    <b-col md="4" class="my-1">
+                    <b-col sm="12" md="4" lg="4" class="my-1">
                         <b-form-group label-cols-sm="6" label="Registros por página: " class="mb-0">
                             <b-form-select v-model="perPage" :options="pageOptions"></b-form-select>
                         </b-form-group>
                     </b-col>
-                    <b-col offset-md="4" md="4" class="my-1">
+                    <b-col sm="12" offset-md="3" md="5" lg="5" class="my-1">
                         <b-form-group label-cols-sm="3" label="Buscar: " class="mb-0">
                             <b-input-group>
                                 <b-form-input v-model="filter" placeholder="Escriba el texto a buscar..."></b-form-input>
-                                <!--<b-input-group-append>
-                                    <b-button :disabled="!filter" @click="filter = ''">Clear</b-button>
-                                </b-input-group-append>-->
+                                <b-input-group-append>
+                                    <b-button :disabled="!filter" @click="filter = ''">Limpiar</b-button>
+                                </b-input-group-append>
                             </b-input-group>
                         </b-form-group>
                     </b-col>                        
@@ -165,12 +165,12 @@
                     descripcion : '',
                     idcaja : '',
                 },
-                columnas: [                    
-                    { key: 'opciones', label: 'Opciones', class: 'text-center' },
+                columnas: [                                        
                     { key : 'monto', label : 'Monto', class: 'text-center', sortable: true },
                     { key : 'tipo', label : 'Tipo', class: 'text-center'},
                     { key : 'created_at', label : 'Fecha - Hora', class: 'text-center'},
                     { key : 'descripcion', label : 'Descripción' },                    
+                    { key: 'opciones', label: 'Opciones', class: 'text-center' },
                 ], 
                 movimientos : [],
                 tituloModalNuevoEditar : '',
@@ -196,21 +196,22 @@
                 dismissCountDown: 0,
                 errors : []                             
             }
-        },        
+        },
+        created() {
+            this.listarMovimiento();            
+        },       
         methods : {
-            listarMovimiento() {
-                let me = this;
-
+            listarMovimiento() {                
                 axios.get(`${this.ruta}/movimiento`, {
                     params: {
                         'idcaja': this.idcaja
                     }
                 })
-                .then(function (response) {                                    
-                    me.movimientos = response.data;
-                    me.totalRows = me.movimientos.length;
+                .then(response => {                                    
+                    this.movimientos = response.data;
+                    this.totalRows = this.movimientos.length;
                 })
-                .catch(function (error) {                    
+                .catch(error => {                    
                     console.log(error);
                 });
             },
@@ -239,59 +240,55 @@
                     }
                 }
             },
-            registrarMovimiento() {
-                let me = this;
+            registrarMovimiento() {                
                 this.errors = [];
 
                 axios.post(`${this.ruta}/movimiento/registrar`, {
-                    'monto': this.movimiento.monto,
-                    'tipo': this.movimiento.tipo,
-                    'descripcion': this.movimiento.descripcion,
-                    'idcaja' : this.idcaja,
-                }).then(function (response) {
-                    me.cerrarModalNuevoEditar();                    
-                    me.listarMovimiento();
-                    me.successMsg = true;
-                    me.txtSuccessMsg = 'El movimiento fue agregado satisfactoriamente.';
-                    me.dismissCountDown = me.dismissSecs;
-                                        
-                }).catch(function (error) {
-                    console.log(error);
-                    if (error.response.status==422) {
-                        me.errors = error.response.data.errors;
-                    }
-                    else {
-                        me.cerrarModalNuevoEditar();                    
-                        me.errorMsg = true;
-                        me.txtErrorMsg = 'Error al agregar el movimiento.';
-                        me.dismissCountDown = me.dismissSecs;
-                    }                    
-                });
+                        'monto': this.movimiento.monto,
+                        'tipo': this.movimiento.tipo,
+                        'descripcion': this.movimiento.descripcion,
+                        'idcaja' : this.idcaja,
+                    }).then(response => {
+                        this.cerrarModalNuevoEditar();                    
+                        this.listarMovimiento();
+                        this.successMsg = true;
+                        this.txtSuccessMsg = 'El movimiento fue agregado satisfactoriamente.';
+                        this.dismissCountDown = this.dismissSecs;                                        
+                    }).catch(error => {                    
+                        if (error.response.status==422) {
+                            this.errors = error.response.data.errors;
+                        }
+                        else {
+                            this.cerrarModalNuevoEditar();                    
+                            this.errorMsg = true;
+                            this.txtErrorMsg = 'Error al agregar el movimiento.';
+                            this.dismissCountDown = this.dismissSecs;
+                        }                    
+                    });
             },
-            actualizarMovimiento(){
-                let me = this;
+            actualizarMovimiento(){                
                 this.errors = [];
 
                 axios.put(`${this.ruta}/movimiento/actualizar/${this.movimiento.id}`, {                    
                     'monto': this.movimiento.monto,
                     'tipo': this.movimiento.tipo,
                     'descripcion': this.movimiento.descripcion,
-                }).then(function (response) {
-                    me.cerrarModalNuevoEditar();                    
-                    me.listarMovimiento();
-                    me.successMsg = true;
-                    me.txtSuccessMsg = 'El movimiento fue actualizado satisfactoriamente.';
-                    me.dismissCountDown = me.dismissSecs;
-                }).catch(function (error) {
+                }).then(response => {
+                    this.cerrarModalNuevoEditar();                    
+                    this.listarMovimiento();
+                    this.successMsg = true;
+                    this.txtSuccessMsg = 'El movimiento fue actualizado satisfactoriamente.';
+                    this.dismissCountDown = this.dismissSecs;
+                }).catch(error => {
                     console.log(error);
                     if (error.response.status==422) {
-                        me.errors = error.response.data.errors;
+                        this.errors = error.response.data.errors;
                     }
                     else {
-                        me.cerrarModalNuevoEditar();                    
-                        me.errorMsg = true;
-                        me.txtErrorMsg = 'Error al actualizar el movimiento.';
-                        me.dismissCountDown = me.dismissSecs;
+                        this.cerrarModalNuevoEditar();                    
+                        this.errorMsg = true;
+                        this.txtErrorMsg = 'Error al actualizar el movimiento.';
+                        this.dismissCountDown = this.dismissSecs;
                     }                    
                 });
             },
@@ -313,23 +310,20 @@
                 this.mensajeEliminar = '¿Desea eliminar este movimiento?';                                                                                                        
                                 
             },
-            eliminarMovimiento() {
-                let me = this;                
-
+            eliminarMovimiento() {                
                 axios.delete(`${this.ruta}/movimiento/eliminar/${this.movimiento.id}`)
-                .then(function (response) {
-                    me.cerrarModalEliminar();                    
-                    me.listarMovimiento();
-                    me.successMsg = true;
-                    me.txtSuccessMsg = 'El movimiento fue eliminado satisfactoriamente.';
-                    me.dismissCountDown = me.dismissSecs;
-                }).catch(function (error) {
-                    //console.log(error);
-                    me.cerrarModalEliminar();         
-                    me.errorMsg = true;
-                    me.txtErrorMsg = 'Error al eliminar el movimiento.';
-                    me.dismissCountDown = me.dismissSecs;                    
-                });
+                    .then(response => {
+                        this.cerrarModalEliminar();                    
+                        this.listarMovimiento();
+                        this.successMsg = true;
+                        this.txtSuccessMsg = 'El movimiento fue eliminado satisfactoriamente.';
+                        this.dismissCountDown = this.dismissSecs;
+                    }).catch(error => {                    
+                        this.cerrarModalEliminar();         
+                        this.errorMsg = true;
+                        this.txtErrorMsg = 'Error al eliminar el movimiento.';
+                        this.dismissCountDown = this.dismissSecs;                    
+                    });
             },           
             cerrarModalEliminar() {
                 this.modalEliminar = false;
@@ -338,18 +332,14 @@
                 this.txtErrorMsg = '';
                 this.txtSuccessMsg = '';   
             },         
-            onFiltered(filteredItems) {
-                // Trigger pagination to update the number of buttons/pages due to filtering
+            onFiltered(filteredItems) {                
                 this.totalRows = filteredItems.length;
                 this.currentPage = 1;
             },
             countDownChanged(dismissCountDown) {
                 this.dismissCountDown = dismissCountDown;
             },
-        },
-        mounted() {
-            this.listarMovimiento();            
-        }
+        },        
     }
 </script>
 <style scoped>

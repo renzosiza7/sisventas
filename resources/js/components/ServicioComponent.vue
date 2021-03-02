@@ -41,18 +41,18 @@
                     </b-alert>
 
                     <b-row>
-                        <b-col md="4" class="my-1">
+                        <b-col sm="12" md="4" lg="4" class="my-1">
                             <b-form-group label-cols-sm="6" label="Registros por página: " class="mb-0">
                                 <b-form-select v-model="perPage" :options="pageOptions"></b-form-select>
                             </b-form-group>
                         </b-col>
-                        <b-col offset-md="4" md="4" class="my-1">
+                        <b-col sm="12" offset-md="3" md="5" lg="5" class="my-1">
                             <b-form-group label-cols-sm="3" label="Buscar: " class="mb-0">
                                 <b-input-group>
                                     <b-form-input v-model="filter" placeholder="Escriba el texto a buscar..."></b-form-input>
-                                    <!--<b-input-group-append>
-                                        <b-button :disabled="!filter" @click="filter = ''">Clear</b-button>
-                                    </b-input-group-append>-->
+                                    <b-input-group-append>
+                                        <b-button :disabled="!filter" @click="filter = ''">Limpiar</b-button>
+                                    </b-input-group-append>
                                 </b-input-group>
                             </b-form-group>
                         </b-col>                        
@@ -370,7 +370,7 @@
                 descripcion : '',               
                 precio : 0,
                 cantidad : 0,     
-                descuento : 0,           
+                descuento : 0,          
 
                 servicio : {
                     id : 0,
@@ -385,8 +385,7 @@
                     totalImpuesto: 0.0,
                     totalParcial: 0.0,
                 },
-                columnas: [                    
-                    { key: 'opciones', label: 'Opciones', class: 'text-center' },
+                columnas: [                                        
                     { key : 'usuario', label : 'Usuario', sortable: true },                    
                     { key : 'nombre', label : 'Cliente' },                    
                     { key : 'tipo_comprobante', label : 'Tipo Doc.', class: 'text-center' },         
@@ -395,6 +394,7 @@
                     { key : 'fecha_hora', label : 'Fecha Hora', class: 'text-center' },  
                     { key : 'total', label : 'Total', class: 'text-center' },                                 
                     { key : 'estado', label : 'Estado', class: 'text-center' },                                        
+                    { key: 'opciones', label: 'Opciones', class: 'text-center' },
                 ], 
                 servicios : [],                
                 arrayCliente: [],
@@ -433,118 +433,107 @@
                 return resultado.toFixed(2);
             }
         },
+        created() {
+            this.listarServicio();                                
+        },
         methods : {
-            listarServicio() {
-                let me = this;
-
+            listarServicio() {                
                 axios.get(`${this.ruta}/servicio`)
-                .then(function (response) {                                    
-                    me.servicios = response.data;
-                    me.totalRows = me.servicios.length;
-                })
-                .catch(function (error) {                    
-                    console.log(error);
-                });
+                    .then(response => {                                    
+                        this.servicios = response.data;
+                        this.totalRows = this.servicios.length;
+                    })
+                    .catch(error => {                    
+                        console.log(error);
+                    });
             },
-            selectCliente(search, loading) {
-                let me=this;                
-                loading(true);
-                var url= this.ruta + '/cliente/selectCliente?filtro=' + search;
+            selectCliente(search, loading) {                               
+                loading(true);                
 
-                axios.get(url).then(function (response) {                                        
-                    me.arrayCliente = response.data;                    
-                    loading(false);
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
+                axios.get(`${this.ruta}/cliente/selectCliente?filtro=${search}`)
+                    .then(response => {                                        
+                        this.arrayCliente = response.data;                    
+                        loading(false);
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
             },                                          
-            mostrarDetalle(){
-                let me = this;
-                me.listado = 0;
-
-                me.servicio.idcliente = '';
-                me.servicio.tipo_comprobante = 'BOLETA';
-                me.servicio.serie_comprobante = '';
-                me.servicio.num_comprobante = '';
-                me.servicio.impuesto = 0.18;
-                me.servicio.total = 0.0;                
-                me.descripcion = '';
-                me.cantidad = 0;
-                me.precio = 0;
-                me.descuento = 0;
-                me.arrayDetalle = [];
-                me.errors = [];
+            mostrarDetalle() {                
+                this.listado = 0;
+                this.servicio.idcliente = '';
+                this.servicio.tipo_comprobante = 'BOLETA';
+                this.servicio.serie_comprobante = '';
+                this.servicio.num_comprobante = '';
+                this.servicio.impuesto = 0.18;
+                this.servicio.total = 0.0;                
+                this.descripcion = '';
+                this.cantidad = 0;
+                this.precio = 0;
+                this.descuento = 0;
+                this.arrayDetalle = [];
+                this.errors = [];
             },
             ocultarDetalle() {
                 this.listado = 1;
             },
-            verServicio(id) {
-                let me = this;
-                me.listado = 2;
+            verServicio(id) {                
+                this.listado = 2;
                 
                 //Obtener los datos del servicio
-                var objServicioT = {};
-                var url = this.ruta + '/servicio/obtenerCabecera?id=' + id;
+                let objServicioT = {};                
                 
-                axios.get(url).then(function (response) {                    
-                    objServicioT = response.data;
+                axios.get(`${this.ruta}/servicio/obtenerCabecera?id=${id}`)
+                    .then(response => {                    
+                        objServicioT = response.data;
 
-                    me.servicio.cliente = objServicioT.nombre;
-                    me.servicio.fecha_hora = objServicioT.fecha_hora;
-                    me.servicio.tipo_comprobante = objServicioT.tipo_comprobante;
-                    me.servicio.serie_comprobante = objServicioT.serie_comprobante;
-                    me.servicio.num_comprobante = objServicioT.num_comprobante;
-                    me.servicio.impuesto = objServicioT.impuesto;
-                    me.servicio.total = objServicioT.total;                    
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
+                        this.servicio.cliente = objServicioT.nombre;
+                        this.servicio.fecha_hora = objServicioT.fecha_hora;
+                        this.servicio.tipo_comprobante = objServicioT.tipo_comprobante;
+                        this.servicio.serie_comprobante = objServicioT.serie_comprobante;
+                        this.servicio.num_comprobante = objServicioT.num_comprobante;
+                        this.servicio.impuesto = objServicioT.impuesto;
+                        this.servicio.total = objServicioT.total;                    
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
 
-                //Obtener los datos de los detalles 
-                var urld= this.ruta + '/servicio/obtenerDetalles?id=' + id;
-                
-                axios.get(urld).then(function (response) {
-                    //console.log(response);                    
-                    me.arrayDetalle = response.data;
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });               
+                //Obtener los datos de los detalles                                
+                axios.get(`${this.ruta}/servicio/obtenerDetalles?id=${id}`)
+                    .then(response => {                    
+                        this.arrayDetalle = response.data;
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });               
             },            
-            agregarDetalle(){
-                let me=this;
-                
-                if(me.descripcion=='' || me.cantidad==0 || me.precio==0) {
+            agregarDetalle(){                                
+                if(this.descripcion=='' || this.cantidad==0 || this.precio==0) {
                 }
                 else {                                        
-                    me.arrayDetalle.push({                        
-                        descripcion: me.descripcion,
-                        cantidad: me.cantidad,
-                        precio: me.precio,
-                        descuento: me.descuento,                        
+                    this.arrayDetalle.push({                        
+                        descripcion: this.descripcion,
+                        cantidad: this.cantidad,
+                        precio: this.precio,
+                        descuento: this.descuento,                        
                     });
                     
-                    me.descripcion = '';
-                    me.cantidad = 0;
-                    me.precio = 0; 
-                    me.descuento = 0;                                                
+                    this.descripcion = '';
+                    this.cantidad = 0;
+                    this.precio = 0; 
+                    this.descuento = 0;                                                
                 }   
             },
-            eliminarDetalle(index) {
-                let me = this;
-                me.arrayDetalle.splice(index, 1);
+            eliminarDetalle(index) {                
+                this.arrayDetalle.splice(index, 1);
             },                                                      
-            validarServicio() {                
-                var mensaje = '';
-                let me = this;
-
-                me.arrayDetalle.map(function(x) {
+            validarServicio() {                                               
+                this.arrayDetalle.map(x => {
                     
                     if (x.descuento > (x.precio * x.cantidad)) {                        
-                        var mensaje = x.descripcion + " con descuento superior al subtotal";                      
-                        swal({
+                        let mensaje = x.descripcion + " con descuento superior al subtotal";                      
+                        swal.fire({
                             type: 'error',
                             title: 'Error...',
                             text: mensaje
@@ -554,9 +543,8 @@
                     }
                 });                              
             },
-            emitirServicio() {                              
-                let me = this;
-                me.validarServicio();
+            emitirServicio() {                                              
+                this.validarServicio();
 
                 axios.post(this.ruta + '/servicio/registrar',{
                     'idcliente': this.servicio.idcliente,
@@ -566,39 +554,38 @@
                     'impuesto' : this.servicio.impuesto,
                     'total' : this.servicio.total,
                     'data': this.arrayDetalle
-                }).then(function (response) {
-                    me.listado = 1;
-                    me.listarServicio();
+                }).then(response => {
+                    this.listado = 1;
+                    this.listarServicio();
 
-                    if (me.servicio.tipo_comprobante == 'TICKET') {
-                        window.open(me.ruta + '/servicio/pdfTicket/'+response.data.id, '_blank');
+                    if (this.servicio.tipo_comprobante == 'TICKET') {
+                        window.open(this.ruta + '/servicio/pdfTicket/'+response.data.id, '_blank');
                     }
                     else {
-                        window.open(me.ruta + '/servicio/pdf/'+response.data.id, '_blank');
+                        window.open(this.ruta + '/servicio/pdf/'+response.data.id, '_blank');
                     }
 
-                    me.servicio.idcliente = '';
-                    me.servicio.tipo_comprobante = 'BOLETA';
-                    me.servicio.serie_comprobante = '';
-                    me.servicio.num_comprobante = '';
-                    me.servicio.impuesto = 0.18;
-                    me.servicio.total = 0.0;                    
+                    this.servicio.idcliente = '';
+                    this.servicio.tipo_comprobante = 'BOLETA';
+                    this.servicio.serie_comprobante = '';
+                    this.servicio.num_comprobante = '';
+                    this.servicio.impuesto = 0.18;
+                    this.servicio.total = 0.0;                    
 
-                    me.descripcion = '';
-                    me.cantidad = 0;
-                    me.precio = 0;                    
-                    me.descuento = 0;
-                    me.arrayDetalle = [];
-                    me.errors = [];                    
-                }).catch(function (error) {
-                    console.log(error);
+                    this.descripcion = '';
+                    this.cantidad = 0;
+                    this.precio = 0;                    
+                    this.descuento = 0;
+                    this.arrayDetalle = [];
+                    this.errors = [];                    
+                }).catch(error => {                    
                     if (error.response.status==422) {
-                        me.errors = error.response.data.errors;
+                        this.errors = error.response.data.errors;
                     }
                     else {                                           
-                        me.errorMsg = true;
-                        me.txtErrorMsg = 'Error al registrar el servicio.';
-                        me.dismissCountDown = me.dismissSecs;
+                        this.errorMsg = true;
+                        this.txtErrorMsg = 'Error al registrar el servicio.';
+                        this.dismissCountDown = this.dismissSecs;
                     }   
                 });
             },                                   
@@ -621,20 +608,17 @@
                 })                   
                 
             },
-            desactivarServicio() {
-                let me = this;                
-
+            desactivarServicio() {                           
                 axios.put(`${this.ruta}/servicio/desactivar/${this.servicio.id}`)
-                .then(function (response) {                                     
-                    me.listarServicio();
-                    me.successMsg = true;
-                    me.txtSuccessMsg = 'El servicio fue anulado con éxito.';
-                    me.dismissCountDown = me.dismissSecs;
-                }).catch(function (error) {
-                    //console.log(error);                    
-                    me.errorMsg = true;
-                    me.txtErrorMsg = 'Error al anular el servicio.';
-                    me.dismissCountDown = me.dismissSecs;                                        
+                .then(response => {                                     
+                    this.listarServicio();
+                    this.successMsg = true;
+                    this.txtSuccessMsg = 'El servicio fue anulado con éxito.';
+                    this.dismissCountDown = this.dismissSecs;
+                }).catch(error => {                                  
+                    this.errorMsg = true;
+                    this.txtErrorMsg = 'Error al anular el servicio.';
+                    this.dismissCountDown = this.dismissSecs;                                        
                 });
             },                       
             cargarPdf(){
@@ -646,19 +630,14 @@
             pdfTicket(id){
                 window.open(this.ruta + '/servicio/pdfTicket/'+ id + ',' + '_blank');
             },
-            onFiltered(filteredItems) {
-                // Trigger pagination to update the number of buttons/pages due to filtering
+            onFiltered(filteredItems) {                
                 this.totalRows = filteredItems.length;
                 this.currentPage = 1;
             },
             countDownChanged(dismissCountDown) {
                 this.dismissCountDown = dismissCountDown;
             },
-        },
-        mounted() {
-            this.listarServicio();      
-            console.log('servicios')                    
-        }
+        },        
     }
 </script>
 <style scoped>

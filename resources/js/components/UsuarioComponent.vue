@@ -40,18 +40,18 @@
                     </b-alert>
 
                     <b-row>
-                        <b-col md="4" class="my-1">
+                        <b-col sm="12" md="4" lg="4" class="my-1">
                             <b-form-group label-cols-sm="6" label="Registros por página: " class="mb-0">
                                 <b-form-select v-model="perPage" :options="pageOptions"></b-form-select>
                             </b-form-group>
                         </b-col>
-                        <b-col offset-md="4" md="4" class="my-1">
+                        <b-col sm="12" offset-md="3" md="5" lg="5" class="my-1">
                             <b-form-group label-cols-sm="3" label="Buscar: " class="mb-0">
                                 <b-input-group>
                                     <b-form-input v-model="filter" placeholder="Escriba el texto a buscar..."></b-form-input>
-                                    <!--<b-input-group-append>
-                                        <b-button :disabled="!filter" @click="filter = ''">Clear</b-button>
-                                    </b-input-group-append>-->
+                                    <b-input-group-append>
+                                        <b-button :disabled="!filter" @click="filter = ''">Limpiar</b-button>
+                                    </b-input-group-append>
                                 </b-input-group>
                             </b-form-group>
                         </b-col>                        
@@ -235,8 +235,7 @@
                     password : '',
                     idrol : ''
                 },
-                columnas: [                    
-                    { key: 'opciones', label: 'Opciones', class: 'text-center' },
+                columnas: [                                        
                     { key : 'nombre', label : 'Nombre', sortable: true },                    
                     { key : 'documento', label : 'Documento' },                    
                     { key : 'telefono', label : 'Teléfono', class: 'text-center' },         
@@ -244,6 +243,7 @@
                     { key : 'usuario', label : 'Usuario', class: 'text-center' },             
                     { key : 'rol', label : 'Rol', class: 'text-center' },  
                     { key : 'condicion', label : 'Condición', class: 'text-center' },                                        
+                    { key: 'opciones', label: 'Opciones', class: 'text-center' },
                 ], 
                 users : [],
                 roles : [],
@@ -270,30 +270,30 @@
                 dismissCountDown: 0,
                 errors : []                             
             }
-        },        
+        },     
+        created() {
+            this.listarUser();  
+            this.getRolesActivos();          
+        },   
         methods : {
-            listarUser() {
-                let me = this;
-
+            listarUser() {               
                 axios.get(`${this.ruta}/user`)
-                .then(function (response) {                                    
-                    me.users = response.data;
-                    me.totalRows = me.users.length;
-                })
-                .catch(function (error) {                    
-                    console.log(error);
-                });
+                    .then(response => {                                    
+                        this.users = response.data;
+                        this.totalRows = this.users.length;
+                    })
+                    .catch(error => {                    
+                        console.log(error);
+                    });
             },
-            getRolesActivos() {
-                let me = this;
-
+            getRolesActivos() {                
                 axios.get(`${this.ruta}/rol/getRolesActivos`)
-                .then(function (response) {                                    
-                    me.roles = response.data;                    
-                })
-                .catch(function (error) {                    
-                    console.log(error);
-                });
+                    .then(response => {                                    
+                        this.roles = response.data;                    
+                    })
+                    .catch(error => {                    
+                        console.log(error);
+                    });
             },
             abrirModalNuevoEditar(accion, data=[]) {                
                 this.modalNuevoEditar = true;
@@ -332,8 +332,7 @@
                     }
                 }
             },
-            registrarUsuario() {
-                let me = this;
+            registrarUsuario() {                
                 this.errors = [];
 
                 axios.post(`${this.ruta}/user/registrar`, {
@@ -346,28 +345,26 @@
                     'usuario': this.user.usuario, 
                     'password': this.user.password,                    
                     'idrol': this.user.idrol,                    
-                }).then(function (response) {
-                    me.cerrarModalNuevoEditar();                    
-                    me.listarUser();
-                    me.successMsg = true;
-                    me.txtSuccessMsg = 'El usuario fue agregado satisfactoriamente.';
-                    me.dismissCountDown = me.dismissSecs;
+                }).then(response => {
+                    this.cerrarModalNuevoEditar();                    
+                    this.listarUser();
+                    this.successMsg = true;
+                    this.txtSuccessMsg = 'El usuario fue agregado satisfactoriamente.';
+                    this.dismissCountDown = this.dismissSecs;
                                         
-                }).catch(function (error) {
-                    console.log(error);
+                }).catch(error => {                    
                     if (error.response.status==422) {
-                        me.errors = error.response.data.errors;
+                        this.errors = error.response.data.errors;
                     }
                     else {
-                        me.cerrarModalNuevoEditar();                    
-                        me.errorMsg = true;
-                        me.txtErrorMsg = 'Error al agregar el usuario.';
-                        me.dismissCountDown = me.dismissSecs;
+                        this.cerrarModalNuevoEditar();                    
+                        this.errorMsg = true;
+                        this.txtErrorMsg = 'Error al agregar el usuario.';
+                        this.dismissCountDown = this.dismissSecs;
                     }                    
                 });
             },
-            actualizarUsuario(){
-                let me = this;
+            actualizarUsuario() {                
                 this.errors = [];
 
                 axios.put(`${this.ruta}/user/actualizar/${this.user.id}`, {                    
@@ -380,22 +377,21 @@
                     'usuario': this.user.usuario, 
                     'password': this.user.password,                    
                     'idrol': this.user.idrol,                    
-                }).then(function (response) {
-                    me.cerrarModalNuevoEditar();                    
-                    me.listarUser();
-                    me.successMsg = true;
-                    me.txtSuccessMsg = 'El usuario fue actualizado satisfactoriamente.';
-                    me.dismissCountDown = me.dismissSecs;
-                }).catch(function (error) {
-                    console.log(error);
+                }).then(response => {
+                    this.cerrarModalNuevoEditar();                    
+                    this.listarUser();
+                    this.successMsg = true;
+                    this.txtSuccessMsg = 'El usuario fue actualizado satisfactoriamente.';
+                    this.dismissCountDown = this.dismissSecs;
+                }).catch(error => {                    
                     if (error.response.status==422) {
-                        me.errors = error.response.data.errors;
+                        this.errors = error.response.data.errors;
                     }
                     else {
-                        me.cerrarModalNuevoEditar();                    
-                        me.errorMsg = true;
-                        me.txtErrorMsg = 'Error al actualizar el usuario.';
-                        me.dismissCountDown = me.dismissSecs;
+                        this.cerrarModalNuevoEditar();                    
+                        this.errorMsg = true;
+                        this.txtErrorMsg = 'Error al actualizar el usuario.';
+                        this.dismissCountDown = this.dismissSecs;
                     }                    
                 });
             },
@@ -438,41 +434,35 @@
                     }
                 }               
             },
-            activarUsuario() {
-                let me = this;                
-
+            activarUsuario() {                         
                 axios.put(`${this.ruta}/user/activar/${this.user.id}`)
-                .then(function (response) {
-                    me.cerrarModalEliminar();                    
-                    me.listarUser();
-                    me.successMsg = true;
-                    me.txtSuccessMsg = 'El usuario fue activado satisfactoriamente.';
-                    me.dismissCountDown = me.dismissSecs;
-                }).catch(function (error) {
-                    //console.log(error);
-                    me.cerrarModalEliminar();         
-                    me.errorMsg = true;
-                    me.txtErrorMsg = 'Error al activar el usuario.';
-                    me.dismissCountDown = me.dismissSecs;                    
-                });
+                    .then(response => {
+                        this.cerrarModalEliminar();                    
+                        this.listarUser();
+                        this.successMsg = true;
+                        this.txtSuccessMsg = 'El usuario fue activado satisfactoriamente.';
+                        this.dismissCountDown = this.dismissSecs;
+                    }).catch(error => {                        
+                        this.cerrarModalEliminar();         
+                        this.errorMsg = true;
+                        this.txtErrorMsg = 'Error al activar el usuario.';
+                        this.dismissCountDown = this.dismissSecs;                    
+                    });
             },
-            desactivarUsuario() {
-                let me = this;                
-
+            desactivarUsuario() {                           
                 axios.put(`${this.ruta}/user/desactivar/${this.user.id}`)
-                .then(function (response) {
-                    me.cerrarModalEliminar();                    
-                    me.listarUser();
-                    me.successMsg = true;
-                    me.txtSuccessMsg = 'El usuario fue desactivado satisfactoriamente.';
-                    me.dismissCountDown = me.dismissSecs;
-                }).catch(function (error) {
-                    //console.log(error);
-                    me.cerrarModalEliminar();         
-                    me.errorMsg = true;
-                    me.txtErrorMsg = 'Error al desactivar el usuario.';
-                    me.dismissCountDown = me.dismissSecs;                                        
-                });
+                    .then(response => {
+                        this.cerrarModalEliminar();                    
+                        this.listarUser();
+                        this.successMsg = true;
+                        this.txtSuccessMsg = 'El usuario fue desactivado satisfactoriamente.';
+                        this.dismissCountDown = this.dismissSecs;
+                    }).catch(error => {                    
+                        this.cerrarModalEliminar();         
+                        this.errorMsg = true;
+                        this.txtErrorMsg = 'Error al desactivar el usuario.';
+                        this.dismissCountDown = this.dismissSecs;                                        
+                    });
             },
             cerrarModalEliminar() {
                 this.modalEliminar = false;
@@ -484,19 +474,14 @@
             cargarPdf(){
                 window.open(this.ruta + '/user/listarPdf','_blank');
             },                 
-            onFiltered(filteredItems) {
-                // Trigger pagination to update the number of buttons/pages due to filtering
+            onFiltered(filteredItems) {                
                 this.totalRows = filteredItems.length;
                 this.currentPage = 1;
             },
             countDownChanged(dismissCountDown) {
                 this.dismissCountDown = dismissCountDown;
             },
-        },
-        mounted() {
-            this.listarUser();  
-            this.getRolesActivos();          
-        }
+        }        
     }
 </script>
 <style scoped>

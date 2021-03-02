@@ -1,12 +1,10 @@
 <template>
-    <main class="main">
-        <!-- Breadcrumb -->
+    <main class="main">        
         <ol class="breadcrumb">            
             <li class="breadcrumb-item"><a href="/">Inicio</a></li>
             <li class="breadcrumb-item active">Ventas</li>
         </ol>
-        <div class="container-fluid">
-            <!-- Ejemplo de tabla Listado -->
+        <div class="container-fluid">            
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Ventas                    
@@ -35,18 +33,18 @@
                     </b-alert>
 
                     <b-row>
-                        <b-col md="4" class="my-1">
+                        <b-col sm="12" md="4" lg="4" class="my-1">
                             <b-form-group label-cols-sm="6" label="Registros por página: " class="mb-0">
                                 <b-form-select v-model="perPage" :options="pageOptions"></b-form-select>
                             </b-form-group>
                         </b-col>
-                        <b-col offset-md="4" md="4" class="my-1">
+                        <b-col sm="12" offset-md="3" md="5" lg="5" class="my-1">
                             <b-form-group label-cols-sm="3" label="Buscar: " class="mb-0">
                                 <b-input-group>
                                     <b-form-input v-model="filter" placeholder="Escriba el texto a buscar..."></b-form-input>
-                                    <!--<b-input-group-append>
-                                        <b-button :disabled="!filter" @click="filter = ''">Clear</b-button>
-                                    </b-input-group-append>-->
+                                    <b-input-group-append>
+                                        <b-button :disabled="!filter" @click="filter = ''">Limpiar</b-button>
+                                    </b-input-group-append>
                                 </b-input-group>
                             </b-form-group>
                         </b-col>                        
@@ -184,7 +182,7 @@
                     </div>
                 </div>
                 </template>
-            </div><!-- Fin ejemplo de tabla Listado -->
+            </div>
         </div>              
     </main>
 </template>
@@ -204,7 +202,6 @@
                 descuento : 0,           
                 criterioA:'nombre',
                 buscarA: '',     
-
                 venta : {
                     id : 0,
                     idcliente : '', 
@@ -218,8 +215,7 @@
                     totalImpuesto: 0.0,
                     totalParcial: 0.0,
                 },
-                columnas: [                    
-                    { key: 'opciones', label: 'Opciones', class: 'text-center' },
+                columnas: [                                        
                     { key : 'usuario', label : 'Usuario', sortable: true },                    
                     { key : 'nombre', label : 'Cliente' },                    
                     { key : 'tipo_comprobante', label : 'Tipo Comprobante', class: 'text-center' },         
@@ -228,6 +224,7 @@
                     { key : 'fecha_hora', label : 'Fecha Hora', class: 'text-center' },  
                     { key : 'total', label : 'Total', class: 'text-center' },                                 
                     { key : 'estado', label : 'Estado', class: 'text-center' },                                        
+                    { key: 'opciones', label: 'Opciones', class: 'text-center' },
                 ], 
                 ventas : [],                
                 arrayCliente: [],
@@ -261,95 +258,85 @@
         },        
         computed : {
             calcularTotal: function(){
-                var resultado = 0.0;
+                let resultado = 0.0;
                 
-                for(var i=0; i < this.arrayDetalle.length; i++){
+                for(let i = 0; i < this.arrayDetalle.length; i++){
                     resultado = resultado+(this.arrayDetalle[i].precio*this.arrayDetalle[i].cantidad - this.arrayDetalle[i].descuento)
                 }
 
                 return resultado.toFixed(2);
             }
         },
+        created() {
+            this.listarVenta();                          
+        },
         methods : {
-            listarVenta() {
-                let me = this;
-
+            listarVenta() {                
                 axios.get(`${this.ruta}/venta`)
-                .then(function (response) {                                    
-                    me.ventas = response.data;
-                    me.totalRows = me.ventas.length;
-                })
-                .catch(function (error) {                    
-                    console.log(error);
-                });
+                    .then(response => {                                    
+                        this.ventas = response.data;
+                        this.totalRows = this.ventas.length;
+                    })
+                    .catch(error => {                    
+                        console.log(error);
+                    });
             },            
-            mostrarDetalle(){
-                let me = this;
-                me.listado = 0;
-
-                me.venta.idcliente = '';
-                me.venta.tipo_comprobante = 'BOLETA';
-                me.venta.serie_comprobante = '';
-                me.venta.num_comprobante = '';
-                me.venta.impuesto = 0.18;
-                me.venta.total = 0.0;
-                me.idarticulo = 0;
-                me.articulo = '';
-                me.cantidad = 0;
-                me.precio = 0;
-                me.descuento = 0;
-                me.arrayDetalle = [];
-                me.errors = [];
+            mostrarDetalle() {                
+                this.listado = 0;
+                this.venta.idcliente = '';
+                this.venta.tipo_comprobante = 'BOLETA';
+                this.venta.serie_comprobante = '';
+                this.venta.num_comprobante = '';
+                this.venta.impuesto = 0.18;
+                this.venta.total = 0.0;
+                this.idarticulo = 0;
+                this.articulo = '';
+                this.cantidad = 0;
+                this.precio = 0;
+                this.descuento = 0;
+                this.arrayDetalle = [];
+                this.errors = [];
             },
             ocultarDetalle() {
                 this.listado = 1;
             },
-            verVenta(id) {
-                let me = this;
-                me.listado = 2;
-                
+            verVenta(id) {                
+                this.listado = 2;                                
+                let objVentaT = {};
+
                 //Obtener los datos de la venta
-                var objVentaT = {};
-                var url = this.ruta + '/venta/obtenerCabecera?id=' + id;
-                
-                axios.get(url).then(function (response) {                    
-                    objVentaT = response.data;
+                axios.get(`${this.ruta}/venta/obtenerCabecera?id=${id}`)
+                    .then(response => {                    
+                        objVentaT = response.data;
+                        this.venta.cliente = objVentaT.nombre;
+                        this.venta.fecha_hora = objVentaT.fecha_hora;
+                        this.venta.tipo_comprobante = objVentaT.tipo_comprobante;
+                        this.venta.serie_comprobante = objVentaT.serie_comprobante;
+                        this.venta.num_comprobante = objVentaT.num_comprobante;
+                        this.venta.impuesto = objVentaT.impuesto;
+                        this.venta.total = objVentaT.total;                    
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
 
-                    me.venta.cliente = objVentaT.nombre;
-                    me.venta.fecha_hora = objVentaT.fecha_hora;
-                    me.venta.tipo_comprobante = objVentaT.tipo_comprobante;
-                    me.venta.serie_comprobante = objVentaT.serie_comprobante;
-                    me.venta.num_comprobante = objVentaT.num_comprobante;
-                    me.venta.impuesto = objVentaT.impuesto;
-                    me.venta.total = objVentaT.total;                    
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
-
-                //Obtener los datos de los detalles 
-                var urld= this.ruta + '/venta/obtenerDetalles?id=' + id;
-                
-                axios.get(urld).then(function (response) {
-                    //console.log(response);                    
-                    me.arrayDetalle = response.data;
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });               
+                //Obtener los datos de los detalles                           
+                axios.get(`${this.ruta}/venta/obtenerDetalles?id=${id}`)
+                    .then(response => {            
+                        this.arrayDetalle = response.data;
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });               
             },           
-            onFiltered(filteredItems) {
-                // Trigger pagination to update the number of buttons/pages due to filtering
+            onFiltered(filteredItems) {                
                 this.totalRows = filteredItems.length;
                 this.currentPage = 1;
             },
             countDownChanged(dismissCountDown) {
                 this.dismissCountDown = dismissCountDown;
             },
-        },
-        mounted() {
-            this.listarVenta();                          
-        }
+        },       
     }
 </script>
 <style scoped>

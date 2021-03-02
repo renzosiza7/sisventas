@@ -122,32 +122,29 @@
                 dismissCountDown: 0,
                 errors : []                             
             }
-        },        
+        },    
+        created() {
+            this.listarRol();            
+        },    
         methods : {
-            listarRol() {
-                let me = this;
-
+            listarRol() {                
                 axios.get(`${this.ruta}/rol`)
-                .then(function (response) {                                    
-                    me.roles = response.data;
-                    me.totalRows = me.roles.length;
+                .then(response => {                                    
+                    this.roles = response.data;
+                    this.totalRows = this.roles.length;
                 })
-                .catch(function (error) {                    
+                .catch(error => {                    
                     console.log(error);
                 });
             },                        
-            onFiltered(filteredItems) {
-                // Trigger pagination to update the number of buttons/pages due to filtering
+            onFiltered(filteredItems) {                
                 this.totalRows = filteredItems.length;
                 this.currentPage = 1;
             },
             countDownChanged(dismissCountDown) {
                 this.dismissCountDown = dismissCountDown;
             },
-        },
-        mounted() {
-            this.listarRol();            
-        }
+        },        
     }
 </script>
 <style scoped>

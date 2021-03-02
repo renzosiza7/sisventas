@@ -1,6 +1,5 @@
 <template>
-    <main class="main">
-        <!-- Breadcrumb -->
+    <main class="main">        
         <ol class="breadcrumb">            
             <li class="breadcrumb-item"><a href="/">Inicio</a></li>
             <li class="breadcrumb-item active">Ingresos</li>
@@ -41,18 +40,18 @@
                     </b-alert>
 
                     <b-row>
-                        <b-col md="4" class="my-1">
+                        <b-col sm="12" md="4" lg="4" class="my-1">
                             <b-form-group label-cols-sm="6" label="Registros por página: " class="mb-0">
                                 <b-form-select v-model="perPage" :options="pageOptions"></b-form-select>
                             </b-form-group>
                         </b-col>
-                        <b-col offset-md="4" md="4" class="my-1">
+                        <b-col sm="12" offset-md="3" md="5" lg="5" class="my-1">
                             <b-form-group label-cols-sm="3" label="Buscar: " class="mb-0">
                                 <b-input-group>
                                     <b-form-input v-model="filter" placeholder="Escriba el texto a buscar..."></b-form-input>
-                                    <!--<b-input-group-append>
-                                        <b-button :disabled="!filter" @click="filter = ''">Clear</b-button>
-                                    </b-input-group-append>-->
+                                    <b-input-group-append>
+                                        <b-button :disabled="!filter" @click="filter = ''">Limpiar</b-button>
+                                    </b-input-group-append>
                                 </b-input-group>
                             </b-form-group>
                         </b-col>                        
@@ -421,8 +420,7 @@
                 precio : 0,
                 cantidad : 0,           
                 criterioA:'nombre',
-                buscarA: '',     
-
+                buscarA: '',
                 ingreso : {
                     id : 0,
                     idproveedor : '', 
@@ -436,8 +434,7 @@
                     totalImpuesto: 0.0,
                     totalParcial: 0.0,
                 },
-                columnas: [                    
-                    { key: 'opciones', label: 'Opciones', class: 'text-center' },                    
+                columnas: [                                                           
                     { key : 'usuario', label : 'Usuario', sortable: true },                    
                     { key : 'proveedor', label : 'Proveedor' },                    
                     { key : 'tipo_comprobante', label : 'Tipo Doc.', class: 'text-center' },         
@@ -446,6 +443,7 @@
                     { key : 'fecha_hora', label : 'Fecha Hora', class: 'text-center' },  
                     { key : 'total', label : 'Total', class: 'text-center' },                                 
                     { key : 'estado', label : 'Estado', class: 'text-center' },                    
+                    { key: 'opciones', label: 'Opciones', class: 'text-center' }, 
                 ], 
                 ingresos : [],                
                 arrayProveedor: [],
@@ -484,110 +482,103 @@
                 return resultado.toFixed(2);
             }
         },
+        created() {
+            this.listarIngreso();                          
+        },
         methods : {
-            listarIngreso() {
-                let me = this;
-
+            listarIngreso() {                
                 axios.get(`${this.ruta}/ingreso`)
-                .then(function (response) {                                    
-                    me.ingresos = response.data;
-                    me.totalRows = me.ingresos.length;
+                .then(response => {                                    
+                    this.ingresos = response.data;
+                    this.totalRows = this.ingresos.length;
                 })
-                .catch(function (error) {                    
+                .catch(error => {                    
                     console.log(error);
                 });
             },
-            selectProveedor(search, loading) {
-                let me=this;                
-                loading(true);
-                var url= this.ruta + '/proveedor/selectProveedor?filtro=' + search;
+            selectProveedor(search, loading) {                     
+                loading(true)
 
-                axios.get(url).then(function (response) {                                        
-                    me.arrayProveedor = response.data;                    
-                    loading(false);
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
+                axios.get(`${this.ruta}/proveedor/selectProveedor?filtro=${search}`)
+                    .then(response => {                                        
+                        this.arrayProveedor = response.data;                    
+                        loading(false);
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
             },   
-            buscarArticulo() {
-                let me=this;
-                var url= this.ruta + '/articulo/buscarArticulo?filtro=' + me.codigo;
+            buscarArticulo() {                                
+                axios.get(`${this.ruta}/articulo/buscarArticulo?filtro=${this.codigo}`)
+                    .then(response => {                    
+                        this.objArticulo = response.data;
 
-                axios.get(url).then(function (response) {                    
-                    me.objArticulo = response.data;
-
-                    if (me.objArticulo != null){
-                        me.idarticulo = me.objArticulo.id;
-                        me.articulo = me.objArticulo.nombre;                        
-                    }
-                    else{
-                        me.idarticulo=0;
-                        me.articulo='No existe artículo';                        
-                    }                    
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
+                        if (this.objArticulo != null){
+                            this.idarticulo = this.objArticulo.id;
+                            this.articulo = this.objArticulo.nombre;                        
+                        }
+                        else{
+                            this.idarticulo=0;
+                            this.articulo='No existe artículo';                        
+                        }                    
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
             },                             
-            mostrarDetalle(){
-                let me = this;
-                me.listado = 0;
-
-                me.ingreso.idproveedor = '';
-                me.ingreso.tipo_comprobante = 'BOLETA';
-                me.ingreso.serie_comprobante = '';
-                me.ingreso.num_comprobante = '';
-                me.ingreso.impuesto = 0.18;
-                me.ingreso.total = 0.0;
-                me.idarticulo = 0;
-                me.articulo = '';
-                me.cantidad = 0;
-                me.precio = 0;
-                me.arrayDetalle = [];
-                me.errors = [];
+            mostrarDetalle() {                
+                this.listado = 0;
+                this.ingreso.idproveedor = '';
+                this.ingreso.tipo_comprobante = 'BOLETA';
+                this.ingreso.serie_comprobante = '';
+                this.ingreso.num_comprobante = '';
+                this.ingreso.impuesto = 0.18;
+                this.ingreso.total = 0.0;
+                this.idarticulo = 0;
+                this.articulo = '';
+                this.cantidad = 0;
+                this.precio = 0;
+                this.arrayDetalle = [];
+                this.errors = [];
             },
             ocultarDetalle(){
                 this.listado = 1;
             },
-            verIngreso(id) {
-                let me = this;
-                me.listado = 2;
+            verIngreso(id) {                
+                this.listado = 2;
                 
                 //Obtener los datos del ingreso
-                var objIngresoT = {};
-                var url = this.ruta + '/ingreso/obtenerCabecera?id=' + id;
+                let objIngresoT = {};                
                 
-                axios.get(url).then(function (response) {                    
-                    objIngresoT = response.data;
+                axios.get(`${this.ruta}/ingreso/obtenerCabecera?id=${id}`)
+                    .then(response => {                    
+                        objIngresoT = response.data;
 
-                    me.ingreso.proveedor = objIngresoT.nombre;
-                    me.ingreso.fecha_hora = objIngresoT.fecha_hora;
-                    me.ingreso.tipo_comprobante = objIngresoT.tipo_comprobante;
-                    me.ingreso.serie_comprobante = objIngresoT.serie_comprobante;
-                    me.ingreso.num_comprobante = objIngresoT.num_comprobante;
-                    me.ingreso.impuesto = objIngresoT.impuesto;
-                    me.ingreso.total = objIngresoT.total;                    
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
+                        this.ingreso.proveedor = objIngresoT.nombre;
+                        this.ingreso.fecha_hora = objIngresoT.fecha_hora;
+                        this.ingreso.tipo_comprobante = objIngresoT.tipo_comprobante;
+                        this.ingreso.serie_comprobante = objIngresoT.serie_comprobante;
+                        this.ingreso.num_comprobante = objIngresoT.num_comprobante;
+                        this.ingreso.impuesto = objIngresoT.impuesto;
+                        this.ingreso.total = objIngresoT.total;                    
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
 
-                //Obtener los datos de los detalles 
-                var urld= this.ruta + '/ingreso/obtenerDetalles?id=' + id;
-                
-                axios.get(urld).then(function (response) {
-                    //console.log(response);                    
-                    me.arrayDetalle = response.data;
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });               
+                //Obtener los datos de los detalles                             
+                axios.get(`${this.ruta}/ingreso/obtenerDetalles?id=${id}`)
+                    .then(response => {                        
+                        this.arrayDetalle = response.data;
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });               
             },
             encuentra(id) {
-                var sw = 0;
+                let sw = 0;
 
-                for(var i = 0; i < this.arrayDetalle.length; i++){
+                for(let i = 0; i < this.arrayDetalle.length; i++){
                     if(this.arrayDetalle[i].idarticulo == id){
                         sw = true;
                     }
@@ -595,38 +586,35 @@
 
                 return sw;
             },
-            agregarDetalle(){
-                let me=this;
-                
-                if(me.idarticulo==0 || me.cantidad==0 || me.precio==0) {
+            agregarDetalle() {                                
+                if(this.idarticulo==0 || this.cantidad==0 || this.precio==0) {
                 }
                 else {
-                    if (me.encuentra(me.idarticulo)){
-                        swal({
+                    if (this.encuentra(this.idarticulo)){
+                        swal.fire({
                             type: 'error',
                             title: 'Error...',
                             text: 'Ese artículo ya se encuentra agregado!',
                         });
                     }
                     else {
-                       me.arrayDetalle.push({
-                            idarticulo: me.idarticulo,
-                            articulo: me.articulo,
-                            cantidad: me.cantidad,
-                            precio: me.precio
+                       this.arrayDetalle.push({
+                            idarticulo: this.idarticulo,
+                            articulo: this.articulo,
+                            cantidad: this.cantidad,
+                            precio: this.precio
                         });
 
-                        me.codigo = '';
-                        me.idarticulo = 0;
-                        me.articulo = '';
-                        me.cantidad = 0;
-                        me.precio = 0; 
+                        this.codigo = '';
+                        this.idarticulo = 0;
+                        this.articulo = '';
+                        this.cantidad = 0;
+                        this.precio = 0; 
                     }                    
                 }   
             },
-            eliminarDetalle(index) {
-                let me = this;
-                me.arrayDetalle.splice(index, 1);
+            eliminarDetalle(index) {                
+                this.arrayDetalle.splice(index, 1);
             },
             cerrarModal() {
                 this.modal=0;
@@ -639,28 +627,25 @@
                 this.modal = 1;
                 this.tituloModal = 'Seleccione uno o varios artículos';
             },            
-            listarArticulo(buscar,criterio) {
-                let me=this;                
-                var url= this.ruta + '/articulo/listarArticulo?buscar='+ buscar + '&criterio='+ criterio;
-                axios.get(url).then(function (response) {
-                    me.arrayArticulo = response.data;                     
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
+            listarArticulo(buscar,criterio) {                                     
+                axios.get(`${this.ruta}/articulo/listarArticulo?buscar=${buscar}&criterio=${criterio}`)
+                    .then(response => {
+                        this.arrayArticulo = response.data;                     
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
             },
-            agregarDetalleModal(data = []) {
-                let me=this;
-
-                if (me.encuentra(data['id'])) {
-                    swal({
+            agregarDetalleModal(data = []) {                
+                if (this.encuentra(data['id'])) {
+                    swal.fire({
                             type: 'error',
                             title: 'Error...',
                             text: 'Ese artículo ya se encuentra agregado!',
                     });
                 }
                 else {
-                    me.arrayDetalle.push({
+                    this.arrayDetalle.push({
                         idarticulo: data['id'],
                         articulo: data['nombre'],
                         cantidad: 1,
@@ -668,9 +653,7 @@
                     }); 
                 }
             },            
-            registrarIngreso() {                              
-                let me = this;
-
+            registrarIngreso() {                                              
                 axios.post(this.ruta + '/ingreso/registrar',{
                     'idproveedor': this.ingreso.idproveedor,
                     'tipo_comprobante': this.ingreso.tipo_comprobante,
@@ -679,40 +662,37 @@
                     'impuesto' : this.ingreso.impuesto,
                     'total' : this.ingreso.total,
                     'data': this.arrayDetalle
-                }).then(function (response) {
-                    me.listado = 1;
-                    me.listarIngreso();
-
-                    window.open(me.ruta + '/ingreso/pdf/'+response.data.id, '_blank');
-
-                    me.ingreso.idproveedor = '';
-                    me.ingreso.tipo_comprobante = 'BOLETA';
-                    me.ingreso.serie_comprobante = '';
-                    me.ingreso.num_comprobante = '';
-                    me.ingreso.impuesto = 0.18;
-                    me.ingreso.total = 0.0;
-                    me.idarticulo = 0;
-                    me.articulo = '';
-                    me.cantidad = 0;
-                    me.precio = 0;
-                    me.arrayDetalle = [];
-                    me.errors = [];
-                }).catch(function (error) {
-                    console.log(error);
+                }).then(response => {
+                    this.listado = 1;
+                    this.listarIngreso();
+                    window.open(this.ruta + '/ingreso/pdf/'+response.data.id, '_blank');
+                    this.ingreso.idproveedor = '';
+                    this.ingreso.tipo_comprobante = 'BOLETA';
+                    this.ingreso.serie_comprobante = '';
+                    this.ingreso.num_comprobante = '';
+                    this.ingreso.impuesto = 0.18;
+                    this.ingreso.total = 0.0;
+                    this.idarticulo = 0;
+                    this.articulo = '';
+                    this.cantidad = 0;
+                    this.precio = 0;
+                    this.arrayDetalle = [];
+                    this.errors = [];
+                }).catch(error => {                    
                     if (error.response.status==422) {
-                        me.errors = error.response.data.errors;
+                        this.errors = error.response.data.errors;
                     }
                     else {                                           
-                        me.errorMsg = true;
-                        me.txtErrorMsg = 'Error al registrar el ingreso.';
-                        me.dismissCountDown = me.dismissSecs;
+                        this.errorMsg = true;
+                        this.txtErrorMsg = 'Error al registrar el ingreso.';
+                        this.dismissCountDown = this.dismissSecs;
                     }   
                 });
             },                                   
             abrirModalAnular(data=[]) {
                 this.ingreso.id = data.id;      
                 
-                Swal.fire({
+                swal.fire({
                     title: "Anular Ingreso",
                     text: "¿Desea anular este ingreso?",
                     icon: 'warning',
@@ -728,21 +708,18 @@
                 })                
                                                               
             },
-            desactivarIngreso() {
-                let me = this;                
-
+            desactivarIngreso() {                         
                 axios.put(`${this.ruta}/ingreso/desactivar/${this.ingreso.id}`)
-                .then(function (response) {                    
-                    me.listarIngreso();
-                    me.successMsg = true;
-                    me.txtSuccessMsg = 'El ingreso fue anulado con éxito.';
-                    me.dismissCountDown = me.dismissSecs;
-                }).catch(function (error) {
-                    //console.log(error);                    
-                    me.errorMsg = true;
-                    me.txtErrorMsg = 'Error al anular el ingreso.';
-                    me.dismissCountDown = me.dismissSecs;                                        
-                });
+                    .then(response => {                    
+                        this.listarIngreso();
+                        this.successMsg = true;
+                        this.txtSuccessMsg = 'El ingreso fue anulado con éxito.';
+                        this.dismissCountDown = this.dismissSecs;
+                    }).catch(error => {                               
+                        this.errorMsg = true;
+                        this.txtErrorMsg = 'Error al anular el ingreso.';
+                        this.dismissCountDown = this.dismissSecs;                                        
+                    });
             },                                           
             cargarPdf(){
                 window.open(this.ruta + '/ingreso/listarPdf','_blank');
@@ -750,18 +727,14 @@
             pdfIngreso(id){
                 window.open(this.ruta + '/ingreso/pdf/'+ id + ',' + '_blank');
             },
-            onFiltered(filteredItems) {
-                // Trigger pagination to update the number of buttons/pages due to filtering
+            onFiltered(filteredItems) {                
                 this.totalRows = filteredItems.length;
                 this.currentPage = 1;
             },
             countDownChanged(dismissCountDown) {
                 this.dismissCountDown = dismissCountDown;
             },
-        },
-        mounted() {
-            this.listarIngreso();                          
-        }
+        },        
     }
 </script>
 <style scoped>

@@ -106,13 +106,6 @@
                     </div>
                     <div class="modal-body">
                         <form role="form">
-                            <div class="form-row">                                
-                                <div class="form-group col-md-12">
-                                    <label for="nombre">Nombre</label>
-                                    <input type="text" v-model="cliente.nombre" class="form-control" id="nombre" placeholder="Nombre del cliente">
-                                    <span v-if="errors.nombre" class="error">{{ errors.nombre[0] }}</span>
-                                </div>
-                            </div>  
                             <div class="form-row">
                                 <div class="form-group col-md-5">
                                     <label for="tipo_documento">Tipo Documento</label>                                    
@@ -130,6 +123,13 @@
                                     <span v-if="errors.num_documento" class="error">{{ errors.num_documento[0] }}</span>                                    
                                 </div>
                             </div>
+                            <div class="form-row">                                
+                                <div class="form-group col-md-12">
+                                    <label for="nombre">Nombre ó razón social</label>
+                                    <input type="text" v-model="cliente.nombre" class="form-control" id="nombre" placeholder="Nombre del cliente">
+                                    <span v-if="errors.nombre" class="error">{{ errors.nombre[0] }}</span>
+                                </div>
+                            </div>                              
                             <div class="form-row">
                                 <div class="form-group col-md-12">
                                     <label for="direccion">Dirección</label>
@@ -175,13 +175,13 @@
                     telefono : '',
                     email : '',
                 },
-                columnas: [                    
-                    { key: 'opciones', label: 'Opciones', class: 'text-center' },
+                columnas: [                                        
                     { key : 'nombre', label : 'Nombre', sortable: true },
                     { key : 'documento', label : 'Documento' },                    
                     { key : 'direccion', label : 'Dirección' },         
                     { key : 'telefono', label : 'Teléfono', class: 'text-center' },         
                     { key : 'email', label : 'email', class: 'text-center' },                                                               
+                    { key: 'opciones', label: 'Opciones', class: 'text-center' },
                 ], 
                 clientes : [],
                 tituloModalNuevoEditar : '',                
@@ -204,18 +204,19 @@
                 errors : []                             
             }
         },        
+        created() {
+            this.listarCliente();            
+        },
         methods : {
-            listarCliente() {
-                let me = this;
-
+            listarCliente() {                
                 axios.get(`${this.ruta}/cliente`)
-                .then(function (response) {                                    
-                    me.clientes = response.data;
-                    me.totalRows = me.clientes.length;
-                })
-                .catch(function (error) {                    
-                    console.log(error);
-                });
+                    .then(response => {                                    
+                        this.clientes = response.data;
+                        this.totalRows = this.clientes.length;
+                    })
+                    .catch(error => {                    
+                        console.log(error);
+                    });
             },
             abrirModalNuevoEditar(accion, data=[]) {                
                 this.modalNuevoEditar = true;
@@ -248,8 +249,7 @@
                     }
                 }
             },
-            registrarCliente() {
-                let me = this;
+            registrarCliente() {                
                 this.errors = [];
 
                 axios.post(`${this.ruta}/cliente/registrar`, {
@@ -259,28 +259,26 @@
                     'direccion': this.cliente.direccion,          
                     'telefono': this.cliente.telefono,          
                     'email': this.cliente.email,                    
-                }).then(function (response) {
-                    me.cerrarModalNuevoEditar();                    
-                    me.listarCliente();
-                    me.successMsg = true;
-                    me.txtSuccessMsg = 'El cliente fue agregado satisfactoriamente.';
-                    me.dismissCountDown = me.dismissSecs;
+                }).then(response => {
+                    this.cerrarModalNuevoEditar();                    
+                    this.listarCliente();
+                    this.successMsg = true;
+                    this.txtSuccessMsg = 'El cliente fue agregado satisfactoriamente.';
+                    this.dismissCountDown = this.dismissSecs;
                                         
-                }).catch(function (error) {
-                    console.log(error);
+                }).catch(error => {                    
                     if (error.response.status==422) {
-                        me.errors = error.response.data.errors;
+                        this.errors = error.response.data.errors;
                     }
                     else {
-                        me.cerrarModalNuevoEditar();                    
-                        me.errorMsg = true;
-                        me.txtErrorMsg = 'Error al agregar el cliente.';
-                        me.dismissCountDown = me.dismissSecs;
+                        this.cerrarModalNuevoEditar();                    
+                        this.errorMsg = true;
+                        this.txtErrorMsg = 'Error al agregar el cliente.';
+                        this.dismissCountDown = this.dismissSecs;
                     }                    
                 });
             },
-            actualizarCliente(){
-                let me = this;
+            actualizarCliente() {                
                 this.errors = [];
 
                 axios.put(`${this.ruta}/cliente/actualizar/${this.cliente.id}`, {                    
@@ -290,22 +288,21 @@
                     'direccion': this.cliente.direccion,          
                     'telefono': this.cliente.telefono,          
                     'email': this.cliente.email,                      
-                }).then(function (response) {
-                    me.cerrarModalNuevoEditar();                    
-                    me.listarCliente();
-                    me.successMsg = true;
-                    me.txtSuccessMsg = 'El cliente fue actualizado satisfactoriamente.';
-                    me.dismissCountDown = me.dismissSecs;
-                }).catch(function (error) {
-                    console.log(error);
+                }).then(response => {
+                    this.cerrarModalNuevoEditar();                    
+                    this.listarCliente();
+                    this.successMsg = true;
+                    this.txtSuccessMsg = 'El cliente fue actualizado satisfactoriamente.';
+                    this.dismissCountDown = this.dismissSecs;
+                }).catch(error => {                    
                     if (error.response.status==422) {
-                        me.errors = error.response.data.errors;
+                        this.errors = error.response.data.errors;
                     }
                     else {
-                        me.cerrarModalNuevoEditar();                    
-                        me.errorMsg = true;
-                        me.txtErrorMsg = 'Error al actualizar el cliente.';
-                        me.dismissCountDown = me.dismissSecs;
+                        this.cerrarModalNuevoEditar();                    
+                        this.errorMsg = true;
+                        this.txtErrorMsg = 'Error al actualizar el cliente.';
+                        this.dismissCountDown = this.dismissSecs;
                     }                    
                 });
             },
@@ -326,18 +323,14 @@
             cargarPdf(){
                 window.open(this.ruta + '/cliente/listarPdf','_blank');
             },                
-            onFiltered(filteredItems) {
-                // Trigger pagination to update the number of buttons/pages due to filtering
+            onFiltered(filteredItems) {                
                 this.totalRows = filteredItems.length;
                 this.currentPage = 1;
             },
             countDownChanged(dismissCountDown) {
                 this.dismissCountDown = dismissCountDown;
             },
-        },
-        mounted() {
-            this.listarCliente();            
-        }
+        },        
     }
 </script>
 <style scoped>

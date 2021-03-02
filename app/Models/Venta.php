@@ -35,6 +35,16 @@ class Venta extends Model
         return $ventas;  
     }
 
+    public function getSerie($tipo_comprobante) {
+
+        $serie = DB::table('serie')                                                                                                                 
+                        ->select('serie','correlativo')
+                        ->where('tipocomp', $tipo_comprobante)                        
+                        ->first();                        
+
+        return json_encode($serie);  
+    }
+
     public function getVentasCaja() {
 
         $ventas = DB::table($this->table)         

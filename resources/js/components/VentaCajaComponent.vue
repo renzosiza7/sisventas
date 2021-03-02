@@ -28,18 +28,18 @@
                     </b-alert>
 
                     <b-row>
-                        <b-col md="4" class="my-1">
+                        <b-col sm="12" md="4" lg="4" class="my-1">
                             <b-form-group label-cols-sm="6" label="Registros por página: " class="mb-0">
                                 <b-form-select v-model="perPage" :options="pageOptions"></b-form-select>
                             </b-form-group>
                         </b-col>
-                        <b-col offset-md="4" md="4" class="my-1">
+                        <b-col sm="12" offset-md="3" md="5" lg="5" class="my-1">
                             <b-form-group label-cols-sm="3" label="Buscar: " class="mb-0">
                                 <b-input-group>
                                     <b-form-input v-model="filter" placeholder="Escriba el texto a buscar..."></b-form-input>
-                                    <!--<b-input-group-append>
-                                        <b-button :disabled="!filter" @click="filter = ''">Clear</b-button>
-                                    </b-input-group-append>-->
+                                    <b-input-group-append>
+                                        <b-button :disabled="!filter" @click="filter = ''">Limpiar</b-button>
+                                    </b-input-group-append>
                                 </b-input-group>
                             </b-form-group>
                         </b-col>                        
@@ -224,8 +224,7 @@
                     totalImpuesto: 0.0,
                     totalParcial: 0.0,
                 },
-                columnas: [                    
-                    { key: 'opciones', label: 'Opciones', class: 'text-center' },
+                columnas: [                                        
                     { key : 'usuario', label : 'Usuario', sortable: true },                    
                     { key : 'nombre', label : 'Cliente' },                    
                     { key : 'tipo_comprobante', label : 'Tipo Doc.', class: 'text-center' },         
@@ -234,6 +233,7 @@
                     { key : 'fecha_hora', label : 'Fecha Hora', class: 'text-center' },  
                     { key : 'total', label : 'Total', class: 'text-center' },                                 
                     { key : 'estado', label : 'Estado', class: 'text-center' },                                        
+                    { key: 'opciones', label: 'Opciones', class: 'text-center' },
                 ], 
                 ventas : [],                
                 arrayCliente: [],
@@ -276,17 +276,18 @@
                 return resultado.toFixed(2);
             }
         },
+        created() {
+            this.listarVentaCaja()                        
+        },
         methods : {
-            listarVentaCaja() {
-                let me = this;
-
+            listarVentaCaja() {                
                 if(this.estado == 'Abierto') {
                     axios.get(`${this.ruta}/venta_caja`)
-                        .then(function (response) {                                    
-                            me.ventas = response.data;
-                            me.totalRows = me.ventas.length;
+                        .then(response => {                                    
+                            this.ventas = response.data;
+                            this.totalRows = this.ventas.length;
                         })
-                        .catch(function (error) {                    
+                        .catch(error => {                    
                             console.log(error);
                     });
                 }
@@ -296,110 +297,102 @@
                             'idcaja': this.idcaja
                         }
                     })
-                        .then(function (response) {                                    
-                            me.ventas = response.data;
-                            me.totalRows = me.ventas.length;                            
+                        .then(response => {                                    
+                            this.ventas = response.data;
+                            this.totalRows = this.ventas.length;                            
                         })
-                        .catch(function (error) {                    
+                        .catch(error => {                    
                             console.log(error);
                     });
                 }      
             },                                                    
-            mostrarDetalle(){
-                let me = this;
-                me.listado = 0;
-
-                me.venta.idcliente = '';
-                me.venta.tipo_comprobante = 'BOLETA';
-                me.venta.serie_comprobante = '';
-                me.venta.num_comprobante = '';
-                me.venta.impuesto = 0.18;
-                me.venta.total = 0.0;
-                me.idarticulo = 0;
-                me.articulo = '';
-                me.cantidad = 0;
-                me.precio = 0;
-                me.descuento = 0;
-                me.arrayDetalle = [];
-                me.errors = [];
+            mostrarDetalle() {                
+                this.listado = 0;
+                this.venta.idcliente = '';
+                this.venta.tipo_comprobante = 'BOLETA';
+                this.venta.serie_comprobante = '';
+                this.venta.num_comprobante = '';
+                this.venta.impuesto = 0.18;
+                this.venta.total = 0.0;
+                this.idarticulo = 0;
+                this.articulo = '';
+                this.cantidad = 0;
+                this.precio = 0;
+                this.descuento = 0;
+                this.arrayDetalle = [];
+                this.errors = [];
             },
             ocultarDetalle() {
                 this.listado = 1;
             },
-            verVenta(id) {
-                let me = this;
-                me.venta.id = id;
-                me.listado = 2;
+            verVenta(id) {                
+                this.venta.id = id;
+                this.listado = 2;
                 
                 //Obtener los datos de la venta
-                var objVentaT = {};
-                var url = this.ruta + '/venta/obtenerCabecera?id=' + id;
+                let objVentaT = {};                
                 
-                axios.get(url).then(function (response) {                    
-                    objVentaT = response.data;
+                axios.get(`${this.ruta}/venta/obtenerCabecera?id=${id}`)
+                    .then(function (response) {                    
+                        objVentaT = response.data;
 
-                    me.venta.cliente = objVentaT.nombre;
-                    me.venta.fecha_hora = objVentaT.fecha_hora;
-                    me.venta.tipo_comprobante = objVentaT.tipo_comprobante;
-                    me.venta.serie_comprobante = objVentaT.serie_comprobante;
-                    me.venta.num_comprobante = objVentaT.num_comprobante;
-                    me.venta.impuesto = objVentaT.impuesto;
-                    me.venta.total = objVentaT.total;                    
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
+                        this.venta.cliente = objVentaT.nombre;
+                        this.venta.fecha_hora = objVentaT.fecha_hora;
+                        this.venta.tipo_comprobante = objVentaT.tipo_comprobante;
+                        this.venta.serie_comprobante = objVentaT.serie_comprobante;
+                        this.venta.num_comprobante = objVentaT.num_comprobante;
+                        this.venta.impuesto = objVentaT.impuesto;
+                        this.venta.total = objVentaT.total;                    
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
 
-                //Obtener los datos de los detalles 
-                var urld= this.ruta + '/venta/obtenerDetalles?id=' + id;
-                
-                axios.get(urld).then(function (response) {
-                    //console.log(response);                    
-                    me.arrayDetalle = response.data;
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });               
+                //Obtener los datos de los detalles                                 
+                axios.get(`${this.ruta}/venta/obtenerDetalles?id=${id}`)
+                    .then(response => {                        
+                        this.arrayDetalle = response.data;
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });               
             },            
-            actualizarVentaCaja() {                              
-                let me = this;                
-
+            actualizarVentaCaja() {                                                         
                 axios.put(`${this.ruta}/venta/actualizar_venta_caja/${this.venta.id}`, {    
                     'idcaja': this.idcaja,                    
-                }).then(function (response) {
-                    me.listado = 1;
-                    me.listarVentaCaja();
+                }).then(response => {
+                    this.listado = 1;
+                    this.listarVentaCaja();
 
-                    if (me.venta.tipo_comprobante == 'TICKET') {
-                        window.open(me.ruta + '/venta/pdfTicket/'+ me.venta.id, '_blank');
+                    if (this.venta.tipo_comprobante == 'TICKET') {
+                        window.open(this.ruta + '/venta/pdfTicket/'+ this.venta.id, '_blank');
                     }
                     else {
-                        window.open(me.ruta + '/venta/pdf/'+ me.venta.id, '_blank');
+                        window.open(this.ruta + '/venta/pdf/'+ this.venta.id, '_blank');
                     }
 
-                    me.venta.idcliente = '';
-                    me.venta.tipo_comprobante = 'BOLETA';
-                    me.venta.serie_comprobante = '';
-                    me.venta.num_comprobante = '';
-                    me.venta.impuesto = 0.18;
-                    me.venta.total = 0.0;
-                    me.idarticulo = 0;
-                    me.articulo = '';
-                    me.cantidad = 0;
-                    me.precio = 0;
-                    me.stock = 0;
-                    me.descuento = 0;
-                    me.arrayDetalle = [];
-                    me.errors = [];                    
-                }).catch(function (error) {
-                    console.log(error);
+                    this.venta.idcliente = '';
+                    this.venta.tipo_comprobante = 'BOLETA';
+                    this.venta.serie_comprobante = '';
+                    this.venta.num_comprobante = '';
+                    this.venta.impuesto = 0.18;
+                    this.venta.total = 0.0;
+                    this.idarticulo = 0;
+                    this.articulo = '';
+                    this.cantidad = 0;
+                    this.precio = 0;
+                    this.stock = 0;
+                    this.descuento = 0;
+                    this.arrayDetalle = [];
+                    this.errors = [];                    
+                }).catch(error => {                    
                     if (error.response.status==422) {
-                        me.errors = error.response.data.errors;
+                        this.errors = error.response.data.errors;
                     }
                     else {                                           
-                        me.errorMsg = true;
-                        me.txtErrorMsg = 'Error al actualizar la venta en caja.';
-                        me.dismissCountDown = me.dismissSecs;
+                        this.errorMsg = true;
+                        this.txtErrorMsg = 'Error al actualizar la venta en caja.';
+                        this.dismissCountDown = this.dismissSecs;
                     }   
                 });
             },           
@@ -412,18 +405,14 @@
             pdfTicket(id){
                 window.open(this.ruta + '/venta/pdfTicket/'+ id + ',' + '_blank');
             },
-            onFiltered(filteredItems) {
-                // Trigger pagination to update the number of buttons/pages due to filtering
+            onFiltered(filteredItems) {                
                 this.totalRows = filteredItems.length;
                 this.currentPage = 1;
             },
             countDownChanged(dismissCountDown) {
                 this.dismissCountDown = dismissCountDown;
             },
-        },
-        mounted() {
-            this.listarVentaCaja();                          
-        }
+        },        
     }
 </script>
 <style scoped>

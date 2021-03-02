@@ -15,12 +15,12 @@ class APIFacturacion extends Model
         $flg_firma = "0";
         $ruta = $ruta_archivo_xml.$nombre.'.XML';
 
-        $ruta_firma = $rutacertificado."/certificado_gyg_tuning.pfx";
-        $pass_firma = "dani3l2021";
+        $ruta_firma = $rutacertificado."/grupocarden.pfx";
+        $pass_firma = "rafael2021";
 
         $resp = $objSignature->signature_xml($flg_firma, $ruta, $ruta_firma, $pass_firma);
 
-        print_r($resp);
+        //print_r($resp);
         //$hash = $resp['hash_cpe'];
 
         //Generar el .zip
@@ -85,7 +85,7 @@ class APIFacturacion extends Model
             curl_setopt($ch,CURLOPT_HTTPHEADER,$header);
             //para ejecutar los procesos de forma local en windows
             //enlace de descarga del cacert.pem https://curl.haxx.se/docs/caextract.html
-            curl_setopt($ch, CURLOPT_CAINFO, public_path()."/cacert.pem");
+            //curl_setopt($ch, CURLOPT_CAINFO, public_path()."/cacert.pem");
 
 
             $response = curl_exec($ch);
@@ -108,21 +108,26 @@ class APIFacturacion extends Model
                             $zip->close();
                         }
                         $estadofe ="1";
-                        echo "TODO OK";
-                    }else{		
+
+                        $result = ['successMessage' => 'Factura enviada a SUNAT correctamente.', 'error' => false];
+                    } else {		
                         $estadofe = "2";
                         $codigo = $doc->getElementsByTagName("faultcode")->item(0)->nodeValue;
                         $mensaje = $doc->getElementsByTagName("faultstring")->item(0)->nodeValue;
-                        echo "error JEIKEN".$codigo.": ".$mensaje; 
+                        $errorMessageSunat = "Fallo envio a SUNAT, código error:". $codigo. ", Mensaje: " . $mensaje;
+                        \Log::error('Error APIFacturacion, Detalle: ' . $errorMessageSunat);
+                        $result = ['errorMessage' => $errorMessageSunat, 'error' => true];
                     }		
 
             }else{ //hay problemas comunicacion
                     $estadofe = "3";
-                    echo curl_error($ch);
-                    echo "Problema de conexión";
-
+                    $errorMessageSunat = 'Problema de conexión a SUNAT: ' . curl_error($ch);
+                    \Log::error('Error APIFacturacion, Detalle: ' . $errorMessageSunat);
+                    $result = ['errorMessage' => 'Problema de conexión a SUNAT', 'error' => true];
             }
 
             curl_close($ch);
+
+            return $result;
     }
 }

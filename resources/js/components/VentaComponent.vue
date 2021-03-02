@@ -17,29 +17,28 @@
                         <i class="icon-doc"></i>&nbsp;Reporte
                     </button>
                 </div>
+                <b-alert
+                    :show="dismissCountDown"
+                    dismissible
+                    variant="danger"
+                    @dismissed="dismissCountDown=0"
+                    @dismiss-count-down="countDownChanged"
+                    v-if="errorMsg"
+                >
+                    {{ txtErrorMsg }}
+                </b-alert>
+                <b-alert
+                    :show="dismissCountDown"
+                    dismissible
+                    variant="success"
+                    @dismissed="dismissCountDown=0"
+                    @dismiss-count-down="countDownChanged"
+                    v-if="successMsg"
+                >
+                    {{ txtSuccessMsg }}
+                </b-alert>
                 <template v-if="listado==1">
-                <div class="card-body"> 
-                    <b-alert
-                        :show="dismissCountDown"
-                        dismissible
-                        variant="danger"
-                        @dismissed="dismissCountDown=0"
-                        @dismiss-count-down="countDownChanged"
-                        v-if="errorMsg"
-                    >
-                        {{ txtErrorMsg }}
-                    </b-alert>
-                    <b-alert
-                        :show="dismissCountDown"
-                        dismissible
-                        variant="success"
-                        @dismissed="dismissCountDown=0"
-                        @dismiss-count-down="countDownChanged"
-                        v-if="successMsg"
-                    >
-                        {{ txtSuccessMsg }}
-                    </b-alert>
-
+                <div class="card-body">                  
                     <b-row>
                         <b-col md="4" class="my-1">
                             <b-form-group label-cols-sm="6" label="Registros por página: " class="mb-0">
@@ -87,14 +86,15 @@
                                     <i class="icon-doc"></i>
                                 </button>
                             </template>        
-                            <b-button variant="danger" size="sm" v-if="(row.item.estado=='Emitido' && iduser == row.item.idusuario) || (row.item.estado=='Emitido' && idrol == 1)" @click="abrirModalAnular(row.item)">
+                            <b-button variant="danger" size="sm" v-if="((row.item.estado=='Emitido' || row.item.estado=='No emitido') && iduser == row.item.idusuario) || ((row.item.estado=='Emitido' || row.item.estado=='No emitido') && idrol == 1)" @click="abrirModalAnular(row.item)">
                                 <i class="icon-trash"></i>
                             </b-button>                                                        
                         </template>
                         <template slot="estado" slot-scope="row">
-                            <span v-if="row.item.estado == 'Emitido'" class="badge badge-warning">Emitido</span>
-                            <span v-else-if="row.item.estado == 'Anulado'" class="badge badge-danger">Anulado</span>                            
-                            <span v-else class="badge badge-success">Registrado</span>                            
+                            <span v-if="row.item.estado == 'Emitido'" class="badge badge-success">Emitido</span>
+                            <span v-else-if="row.item.estado == 'No emitido'" class="badge badge-warning">No emitido</span>
+                            <span v-else-if="row.item.estado == 'Anulado'" class="badge badge-danger">Anulado</span>
+                            <span v-else-if="row.item.estado == 'Registrado'" class="badge badge-primary">Registrado</span>
                         </template>
                     </b-table>
                     <b-row>
@@ -117,25 +117,25 @@
                             <div class="form-group">
                                 <label for="">Cliente (*)</label>
                                 <v-select
-                                    v-model="venta.idcliente"
+                                    v-model="venta.obj_cliente"
                                     @search="selectCliente"
                                     class="style-chooser" 
                                     :filterable="false"
                                     label="nombre"                                    
                                     :options="arrayCliente"
                                     placeholder="Buscar Clientes..."                
-                                    :reduce="cliente => cliente.id"                 
+                                    :reduce="cliente => cliente"                 
                                 >
                                     <template slot="no-options">
                                         Lo sentimos, no hay resultados de coincidencia.
                                     </template>
                                 </v-select>
-                                <span v-if="errors.idcliente" class="error">{{ errors.idcliente[0] }}</span>
+                                <span v-if="errors.cliente" class="error">{{ errors.cliente[0] }}</span>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <label for="">I.G.V.(*)</label>
-                            <input type="text" class="form-control" v-model="venta.impuesto">
+                            <input type="text" class="form-control" v-model="venta.impuesto" readonly>
                             <span v-if="errors.impuesto" class="error">{{ errors.impuesto[0] }}</span>
                         </div>
                         <div class="col-md-4">
@@ -152,14 +152,14 @@
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label>Serie Comprobante</label>
+                                <label>Serie</label>
                                 <input type="text" class="form-control" v-model="venta.serie_comprobante" placeholder="000x">
                                 <span v-if="errors.serie_comprobante" class="error">{{ errors.serie_comprobante[0] }}</span>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label>Número Comprobante (*)</label>
+                                <label>Correlativo (*)</label>
                                 <input type="text" class="form-control" v-model="venta.num_comprobante" placeholder="000xx">
                                 <span v-if="errors.num_comprobante" class="error">{{ errors.num_comprobante[0] }}</span>
                             </div>
@@ -339,7 +339,7 @@
                                     </tr>
                                     <tr style="background-color: #CEECF5;">
                                         <td colspan="4" align="right"><strong>Total I.G.V.:</strong></td>
-                                        <td>S/. {{venta.totalImpuesto=((venta.total*venta.impuesto)).toFixed(2)}}</td>
+                                        <td>S/. {{venta.totalImpuesto=((venta.total*venta.impuesto)/(1+venta.impuesto)).toFixed(2)}}</td>
                                     </tr>
                                     <tr style="background-color: #CEECF5;">
                                         <td colspan="4" align="right"><strong>Total Neto:</strong></td>
@@ -448,10 +448,9 @@
                 descuento : 0,           
                 criterioA:'nombre',
                 buscarA: '',     
-
                 venta : {
                     id : 0,
-                    idcliente : '', 
+                    obj_cliente : null, 
                     cliente : '',                    
                     fecha_hora:'',                                     
                     tipo_comprobante : 'BOLETA',
@@ -462,8 +461,8 @@
                     totalImpuesto: 0.0,
                     totalParcial: 0.0,
                 },
-                columnas: [                    
-                    { key: 'opciones', label: 'Opciones', class: 'text-center' },
+                serie_correlativo: {},
+                columnas: [                                        
                     { key : 'usuario', label : 'Usuario', sortable: true },                    
                     { key : 'nombre', label : 'Cliente' },                    
                     { key : 'tipo_comprobante', label : 'Tipo Doc.', class: 'text-center' },         
@@ -472,6 +471,7 @@
                     { key : 'fecha_hora', label : 'Fecha Hora', class: 'text-center' },  
                     { key : 'total', label : 'Total', class: 'text-center' },                                 
                     { key : 'estado', label : 'Estado', class: 'text-center' },                                        
+                    { key: 'opciones', label: 'Opciones', class: 'text-center' },
                 ], 
                 ventas : [],                
                 arrayCliente: [],
@@ -510,113 +510,123 @@
                 return resultado.toFixed(2);
             }
         },
+        watch: {
+            'venta.tipo_comprobante': function(val) {                                
+                axios.get(`${this.ruta}/venta/selectSerie`, {
+                        params: {                        
+                            tipo_comprobante: val
+                        }
+                    })
+                    .then(response => {
+                        if (response.data != null) {
+                            this.venta.serie_comprobante = response.data.serie
+                            this.venta.num_comprobante = response.data.correlativo
+                        }                   
+                        else {
+                            this.venta.serie_comprobante = ''
+                            this.venta.num_comprobante = ''
+                        }                        
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
+            }            
+        },
+        created() {
+            this.listarVenta();                          
+        },
         methods : {
-            listarVenta() {
-                let me = this;
-
+            listarVenta() {                
                 axios.get(`${this.ruta}/venta`)
-                .then(function (response) {                                    
-                    me.ventas = response.data;
-                    me.totalRows = me.ventas.length;
+                .then(response => {                                    
+                    this.ventas = response.data;
+                    this.totalRows = this.ventas.length;
                 })
-                .catch(function (error) {                    
+                .catch(error => {                    
                     console.log(error);
                 });
             },
-            selectCliente(search, loading) {
-                let me=this;                
-                loading(true);
-                var url= this.ruta + '/cliente/selectCliente?filtro=' + search;
+            selectCliente(search, loading) {                     
+                loading(true);               
 
-                axios.get(url).then(function (response) {                                        
-                    me.arrayCliente = response.data;                    
+                axios.get(`${this.ruta}/cliente/selectCliente?filtro=${search}`)
+                .then(response => {                                        
+                    this.arrayCliente = response.data;                    
                     loading(false);
                 })
                 .catch(function (error) {
                     console.log(error);
                 });
-            },   
-            buscarArticulo() {
-                let me=this;
-                var url= this.ruta + '/articulo/buscarArticuloVenta?filtro=' + me.codigo;
-
-                axios.get(url).then(function (response) {                    
-                    me.objArticulo = response.data;
-
-                    if (me.objArticulo != null){
-                        me.idarticulo = me.objArticulo.id;
-                        me.articulo = me.objArticulo.nombre;                        
-                        me.precio = me.objArticulo.precio_venta;
-                        me.stock = me.objArticulo.stock;
-                    }
-                    else{
-                        me.idarticulo=0;
-                        me.articulo='No existe artículo';                        
-                    }                    
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
+            },                
+            buscarArticulo() {                
+                axios.get(`${this.ruta}/articulo/buscarArticuloVenta?filtro=${this.codigo}`)
+                    .then(response => {                    
+                        this.objArticulo = response.data;
+                        if (this.objArticulo != null){
+                            this.idarticulo = this.objArticulo.id;
+                            this.articulo = this.objArticulo.nombre;                        
+                            this.precio = this.objArticulo.precio_venta;
+                            this.stock = this.objArticulo.stock;
+                        }
+                        else {
+                            this.idarticulo=0;
+                            this.articulo='No existe artículo';                        
+                        }                    
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
             },                             
-            mostrarDetalle(){
-                let me = this;
-                me.listado = 0;
-
-                me.venta.idcliente = '';
-                me.venta.tipo_comprobante = 'BOLETA';
-                me.venta.serie_comprobante = '';
-                me.venta.num_comprobante = '';
-                me.venta.impuesto = 0.18;
-                me.venta.total = 0.0;
-                me.idarticulo = 0;
-                me.articulo = '';
-                me.cantidad = 0;
-                me.precio = 0;
-                me.descuento = 0;
-                me.arrayDetalle = [];
-                me.errors = [];
+            mostrarDetalle(){                
+                this.listado = 0;
+                this.venta.obj_cliente = null;
+                this.venta.tipo_comprobante = 'BOLETA';
+                this.venta.serie_comprobante = '';
+                this.venta.num_comprobante = '';
+                this.venta.impuesto = 0.18;
+                this.venta.total = 0.0;
+                this.idarticulo = 0;
+                this.articulo = '';
+                this.cantidad = 0;
+                this.precio = 0;
+                this.descuento = 0;
+                this.arrayDetalle = [];
+                this.errors = [];
             },
             ocultarDetalle() {
                 this.listado = 1;
             },
-            verVenta(id) {
-                let me = this;
-                me.listado = 2;
+            verVenta(id) {                
+                this.listado = 2;               
+                let objVentaT = {};                
                 
-                //Obtener los datos de la venta
-                var objVentaT = {};
-                var url = this.ruta + '/venta/obtenerCabecera?id=' + id;
+                axios.get(`${this.ruta}/venta/obtenerCabecera?id=${id}`)
+                    .then(response => {                    
+                        objVentaT = response.data;
+                        this.venta.cliente = objVentaT.nombre;
+                        this.venta.fecha_hora = objVentaT.fecha_hora;
+                        this.venta.tipo_comprobante = objVentaT.tipo_comprobante;
+                        this.venta.serie_comprobante = objVentaT.serie_comprobante;
+                        this.venta.num_comprobante = objVentaT.num_comprobante;
+                        this.venta.impuesto = parseFloat(objVentaT.impuesto);
+                        this.venta.total = objVentaT.total;                    
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });               
                 
-                axios.get(url).then(function (response) {                    
-                    objVentaT = response.data;
-
-                    me.venta.cliente = objVentaT.nombre;
-                    me.venta.fecha_hora = objVentaT.fecha_hora;
-                    me.venta.tipo_comprobante = objVentaT.tipo_comprobante;
-                    me.venta.serie_comprobante = objVentaT.serie_comprobante;
-                    me.venta.num_comprobante = objVentaT.num_comprobante;
-                    me.venta.impuesto = objVentaT.impuesto;
-                    me.venta.total = objVentaT.total;                    
+                axios.get(`${this.ruta}/venta/obtenerDetalles?id=${id}`)
+                .then(response => {                                 
+                    this.arrayDetalle = response.data;
                 })
-                .catch(function (error) {
-                    console.log(error);
-                });
-
-                //Obtener los datos de los detalles 
-                var urld= this.ruta + '/venta/obtenerDetalles?id=' + id;
-                
-                axios.get(urld).then(function (response) {
-                    //console.log(response);                    
-                    me.arrayDetalle = response.data;
-                })
-                .catch(function (error) {
+                .catch(error => {
                     console.log(error);
                 });               
             },
             encuentra(id) {
-                var sw = 0;
+                let sw = 0;
 
-                for(var i = 0; i < this.arrayDetalle.length; i++){
+                for(let i = 0; i < this.arrayDetalle.length; i++){
                     if(this.arrayDetalle[i].idarticulo == id){
                         sw = true;
                     }
@@ -624,13 +634,11 @@
 
                 return sw;
             },
-            agregarDetalle(){
-                let me=this;
-                
-                if(me.idarticulo==0 || me.cantidad==0 || me.precio==0) {
+            agregarDetalle() {                               
+                if (this.idarticulo == 0 || this.cantidad == 0 || this.precio == 0) {
                 }
                 else {
-                    if (me.encuentra(me.idarticulo)){
+                    if (this.encuentra(this.idarticulo)){
                         swal({
                             type: 'error',
                             title: 'Error...',
@@ -638,7 +646,7 @@
                         });
                     }
                     else {
-                       if(me.cantidad > me.stock) {
+                       if(this.cantidad > this.stock) {
                            swal({
                                 type: 'error',
                                 title: 'Error...',
@@ -646,63 +654,59 @@
                             });
                        }
                        else {
-                            me.arrayDetalle.push({
-                                idarticulo: me.idarticulo,
-                                articulo: me.articulo,
-                                cantidad: me.cantidad,
-                                precio: me.precio,
-                                descuento: me.descuento,
-                                stock: me.stock
+                            this.arrayDetalle.push({
+                                idarticulo: this.idarticulo,
+                                articulo: this.articulo,
+                                cantidad: this.cantidad,
+                                precio: this.precio,
+                                descuento: this.descuento,
+                                stock: this.stock
                             });
 
-                            me.codigo = '';
-                            me.idarticulo = 0;
-                            me.articulo = '';
-                            me.cantidad = 0;
-                            me.precio = 0; 
-                            me.descuento = 0;
-                            me.stock = 0;
+                            this.codigo = '';
+                            this.idarticulo = 0;
+                            this.articulo = '';
+                            this.cantidad = 0;
+                            this.precio = 0; 
+                            this.descuento = 0;
+                            this.stock = 0;
                        }
                     }                    
                 }   
             },
-            eliminarDetalle(index) {
-                let me = this;
-                me.arrayDetalle.splice(index, 1);
+            eliminarDetalle(index) {                
+                this.arrayDetalle.splice(index, 1);
             },
             cerrarModal() {
-                this.modal=0;
-                this.tituloModal='';
+                this.modal = 0;
+                this.tituloModal = '';
                 this.criterioA = 'nombre';
                 this.buscarA = ''                
             }, 
-            abrirModal(){          
+            abrirModal() {          
                 this.arrayArticulo = [];                     
                 this.modal = 1;
                 this.tituloModal = 'Seleccione uno o varios artículos';
             },            
-            listarArticulo(buscar,criterio) {
-                let me=this;                
-                var url= this.ruta + '/articulo/listarArticuloVenta?buscar='+ buscar + '&criterio='+ criterio;
-                axios.get(url).then(function (response) {
-                    me.arrayArticulo = response.data;                     
+            listarArticulo(buscar, criterio) {                                
+                axios.get(`${this.ruta}/articulo/listarArticuloVenta?buscar=${buscar}&criterio=${criterio}`)
+                .then(response => {
+                    this.arrayArticulo = response.data;                     
                 })
-                .catch(function (error) {
+                .catch(error => {
                     console.log(error);
                 });
             },
-            agregarDetalleModal(data = []) {
-                let me=this;
-
-                if (me.encuentra(data['id'])) {
-                    swal({
+            agregarDetalleModal(data = []) {              
+                if (this.encuentra(data['id'])) {                    
+                    swal.fire({
                             type: 'error',
                             title: 'Error...',
                             text: 'Ese artículo ya se encuentra agregado!',
                     });
                 }
                 else {
-                    me.arrayDetalle.push({
+                    this.arrayDetalle.push({
                         idarticulo: data['id'],
                         articulo: data['nombre'],
                         cantidad: 1,
@@ -713,14 +717,13 @@
                 }
             },            
             validarVenta() {                
-                var mensaje = '';
-                let me = this;
+                let mensaje = '';               
 
-                me.arrayDetalle.map(function(x) {
+                this.arrayDetalle.map(function(x) {
 
                     if (x.cantidad > x.stock) {
-                        var mensaje = x.articulo + " con stock insuficiente";                        
-                        swal({
+                        mensaje = x.articulo + " con stock insuficiente";                        
+                        swal.fire({
                             type: 'error',
                             title: 'Error...',
                             text: mensaje
@@ -729,7 +732,7 @@
                         return;                
                     }
                     if (x.descuento > (x.precio * x.cantidad)) {                        
-                        var mensaje = x.articulo + " con descuento superior al subtotal";                      
+                        mensaje = x.articulo + " con descuento superior al subtotal";                      
                         swal({
                             type: 'error',
                             title: 'Error...',
@@ -740,53 +743,72 @@
                     }
                 });                              
             },
-            registrarVenta() {                              
-                let me = this;
-                me.validarVenta();
+            registrarVenta() {                                              
+                this.validarVenta();
 
-                axios.post(this.ruta + '/venta/registrar',{
-                    'idcliente': this.venta.idcliente,
+                axios.post(this.ruta + '/venta/registrar', {
+                    'cliente': this.venta.obj_cliente,
                     'tipo_comprobante': this.venta.tipo_comprobante,
                     'serie_comprobante' : this.venta.serie_comprobante,
                     'num_comprobante' : this.venta.num_comprobante,
                     'impuesto' : this.venta.impuesto,
                     'total' : this.venta.total,
                     'data': this.arrayDetalle
-                }).then(function (response) {
-                    me.listado = 1;
-                    me.listarVenta();
+                }).then(response => {  
+                    if (!response.data.result_venta.error) {
+                        if (this.venta.tipo_comprobante == 'FACTURA') {
+                            let color_btn_ok;
+                            let msgContent;
 
-                    if (me.venta.tipo_comprobante == 'TICKET') {
-                        window.open(me.ruta + '/venta/pdfTicket/'+response.data.id, '_blank');
-                    }
-                    else {
-                        window.open(me.ruta + '/venta/pdf/'+response.data.id, '_blank');
-                    }
+                            if (!response.data.result_sunat.error) {
+                                color_btn_ok = 'success';                                
+                                msgContent = response.data.result_venta.successMessage + '\n' + response.data.result_sunat.successMessage;
+                            }
+                            else {
+                                color_btn_ok = 'danger';
+                                msgContent = response.data.result_venta.successMessage + '\n' + response.data.result_sunat.errorMessage;
+                            }
 
-                    me.venta.idcliente = '';
-                    me.venta.tipo_comprobante = 'BOLETA';
-                    me.venta.serie_comprobante = '';
-                    me.venta.num_comprobante = '';
-                    me.venta.impuesto = 0.18;
-                    me.venta.total = 0.0;
-                    me.idarticulo = 0;
-                    me.articulo = '';
-                    me.cantidad = 0;
-                    me.precio = 0;
-                    me.stock = 0;
-                    me.descuento = 0;
-                    me.arrayDetalle = [];
-                    me.errors = [];                    
-                }).catch(function (error) {
-                    console.log(error);
-                    if (error.response.status==422) {
-                        me.errors = error.response.data.errors;
+                            this.$bvModal.msgBoxOk(msgContent, {
+                                title: 'Facturación Electrónica',
+                                size: 'md',
+                                buttonSize: 'md',
+                                okVariant: color_btn_ok,
+                                headerClass: 'p-2 border-bottom-0',
+                                footerClass: 'p-2 border-top-0',
+                                centered: true
+                            })
+                            .then(value => {
+                                if (!response.data.result_sunat.error) {
+                                    window.open(this.ruta + '/venta/pdf/'+response.data.id, '_blank');
+                                }                               
+                                this.listado = 1;
+                                this.listarVenta();
+                            })
+                        }
+                        else {
+                            if (this.venta.tipo_comprobante == 'TICKET') {
+                                window.open(this.ruta + '/venta/pdfTicket/'+response.data.id, '_blank');
+                            }
+                            else {
+                                window.open(this.ruta + '/venta/pdf/'+response.data.id, '_blank');
+                            }
+                            
+                            this.listado = 1;
+                            this.listarVenta();
+                        }
                     }
-                    else {                                           
-                        me.errorMsg = true;
-                        me.txtErrorMsg = 'Error al registrar el venta.';
-                        me.dismissCountDown = me.dismissSecs;
-                    }   
+                    else {                        
+                        swal.fire({
+                            type: 'error',
+                            title: 'Error...',
+                            text: response.data.result_venta.errorMessage
+                        });                        
+                    }                                        
+                }).catch(error => {                    
+                    if (error.response.status == 422) {
+                        this.errors = error.response.data.errors;
+                    }                    
                 });
             },                                   
             abrirModalAnular(data=[]) {                
@@ -807,22 +829,35 @@
                     }
                 })     
             },
-            desactivarVenta() {
-                let me = this;                
-
+            desactivarVenta() {                            
                 axios.put(`${this.ruta}/venta/desactivar/${this.venta.id}`)
-                .then(function (response) {                                    
-                    me.listarVenta();
-                    me.successMsg = true;
-                    me.txtSuccessMsg = 'El venta fue anulado con éxito.';
-                    me.dismissCountDown = me.dismissSecs;
-                }).catch(function (error) {
-                    //console.log(error);                    
-                    me.errorMsg = true;
-                    me.txtErrorMsg = 'Error al anular el venta.';
-                    me.dismissCountDown = me.dismissSecs;                                        
-                });
-            },                                    
+                    .then(response => {                                    
+                        this.listarVenta();
+                        this.successMsg = true;
+                        this.txtSuccessMsg = 'El venta fue anulado con éxito.';
+                        this.dismissCountDown = this.dismissSecs;
+                    }).catch(error => {                                        
+                        this.errorMsg = true;
+                        this.txtErrorMsg = 'Error al anular el venta.';
+                        this.dismissCountDown = this.dismissSecs;                                        
+                    });
+            },  
+            resetearValores() {
+                this.venta.obj_cliente = null;
+                this.venta.tipo_comprobante = 'BOLETA';
+                this.venta.serie_comprobante = '';
+                this.venta.num_comprobante = '';
+                this.venta.impuesto = 0.18;
+                this.venta.total = 0.0;
+                this.idarticulo = 0;
+                this.articulo = '';
+                this.cantidad = 0;
+                this.precio = 0;
+                this.stock = 0;
+                this.descuento = 0;
+                this.arrayDetalle = [];
+                this.errors = [];
+            },
             cargarPdf(){
                 window.open(this.ruta + '/venta/listarPdf','_blank');
             },                   
@@ -832,22 +867,17 @@
             pdfTicket(id){
                 window.open(this.ruta + '/venta/pdfTicket/'+ id + ',' + '_blank');
             },
-            onFiltered(filteredItems) {
-                // Trigger pagination to update the number of buttons/pages due to filtering
+            onFiltered(filteredItems) {                
                 this.totalRows = filteredItems.length;
                 this.currentPage = 1;
             },
             countDownChanged(dismissCountDown) {
                 this.dismissCountDown = dismissCountDown;
             },
-        },
-        mounted() {
-            this.listarVenta();                          
-        }
+        },        
     }
 </script>
-<style scoped>
-    /* Modal styles */
+<style scoped>    
     .modal .modal-dialog {
         max-width: 800px;
         margin: 3.75rem auto;

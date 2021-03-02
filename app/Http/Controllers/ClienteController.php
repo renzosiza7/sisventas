@@ -50,17 +50,32 @@ class ClienteController extends Controller
     {
         if (!$request->ajax()) return redirect('/');
 
-        $this->validate($request, [            
-            'nombre' => 'required|max:100',            
-            'tipo_documento' => 'nullable|max:20',
-            'num_documento' => 'nullable|max:20',
-            'direccion' => 'nullable|max:70',
-            'telefono' => 'nullable|digits_between:6,12',
-            'email' => 'nullable|email|max:50',
-        ],
-        [                        
-            'num_documento.max' => 'El campo nro. documento no debe ser mayor a 20 dígitos.',                        
-        ]);
+        if ($request->tipo_documento != 'RUC') {
+            $this->validate($request, [            
+                'nombre' => 'required|max:100',            
+                'tipo_documento' => 'required|max:20',
+                'num_documento' => 'required|max:20',
+                'direccion' => 'nullable|max:70',
+                'telefono' => 'nullable|digits_between:6,12',
+                'email' => 'nullable|email|max:50',
+            ],
+            [                        
+                'num_documento.max' => 'El campo nro. documento no debe ser mayor a 20 dígitos.',                        
+            ]);            
+        }
+        else {
+            $this->validate($request, [            
+                'nombre' => 'required|max:100',            
+                'tipo_documento' => 'required|max:20',
+                'num_documento' => 'required|max:20',
+                'direccion' => 'required|max:70',
+                'telefono' => 'nullable|digits_between:6,12',
+                'email' => 'nullable|email|max:50',
+            ],
+            [                        
+                'num_documento.max' => 'El campo nro. documento no debe ser mayor a 20 dígitos.',                        
+            ]);            
+        }        
         
         $persona = new Persona();
         $persona->nombre = $request->nombre;
@@ -106,17 +121,32 @@ class ClienteController extends Controller
     {
         if (!$request->ajax()) return redirect('/');
         
-        $this->validate($request, [            
-            'nombre' => 'required|max:100',            
-            'tipo_documento' => 'nullable|max:20',
-            'num_documento' => 'nullable|max:20',
-            'direccion' => 'nullable|max:70',
-            'telefono' => 'nullable|digits_between:6,12',
-            'email' => 'nullable|email|max:50',
-        ],
-        [                        
-            'num_documento.max' => 'El campo nro. documento no debe ser mayor a 20 dígitos.',                        
-        ]);
+        if ($request->tipo_documento != 'RUC') {
+            $this->validate($request, [            
+                'nombre' => 'required|max:100',            
+                'tipo_documento' => 'required|max:20',
+                'num_documento' => 'required|max:20',
+                'direccion' => 'nullable|max:70',
+                'telefono' => 'nullable|digits_between:6,12',
+                'email' => 'nullable|email|max:50',
+            ],
+            [                        
+                'num_documento.max' => 'El campo nro. documento no debe ser mayor a 20 dígitos.',                        
+            ]);            
+        }
+        else {
+            $this->validate($request, [            
+                'nombre' => 'required|max:100',            
+                'tipo_documento' => 'required|max:20',
+                'num_documento' => 'required|max:20',
+                'direccion' => 'required|max:70',
+                'telefono' => 'nullable|digits_between:6,12',
+                'email' => 'nullable|email|max:50',
+            ],
+            [                        
+                'num_documento.max' => 'El campo nro. documento no debe ser mayor a 20 dígitos.',                        
+            ]);            
+        }
         
         $persona = Persona::findOrFail($id);
         $persona->nombre = $request->nombre;

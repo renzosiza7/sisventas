@@ -34,7 +34,6 @@ import Echo from 'laravel-echo';
 // const files = require.context('./', true, /\.vue$/i);
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default));
 
-Vue.component('example-component', require('./components/ExampleComponent.vue').default);
 Vue.component('categoria-component', require('./components/CategoriaComponent.vue').default);
 Vue.component('marca-component', require('./components/MarcaComponent.vue').default);
 Vue.component('articulo-component', require('./components/ArticuloComponent.vue').default);
@@ -67,11 +66,9 @@ const app = new Vue({
     el: '#app',
     data: {
         menu: 'inicio',
-        //ruta: '//127.0.0.1:8000',
-        ruta: '//localhost:3000',
-        //ruta: '//rs7.app/sisventas',
-        //ruta: 'http://www.grupocarden.com/sisventas/public',
-        //ruta: '//10.20.10.4:8001',
+        //ruta: '//127.0.0.1:8001',
+        //ruta: '//localhost:3000',        
+        ruta: 'http://www.grupocarden.com/sisventas/public',        
         renderKey: 1,
         notifications : []
     },

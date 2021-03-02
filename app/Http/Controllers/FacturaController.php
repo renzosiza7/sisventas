@@ -156,6 +156,6 @@ class FacturaController extends Controller
 
         $api_facturacion->EnviarComprobanteElectronico($emisor,$nombrexml,$ruta_certificado,$ruta_archivo_xml,$ruta_archivo_cdr);        
         
-        return "factura creada satisfactoriamente";
+        return "La factura fue agregada satisfactoriamente.";
     }
 }

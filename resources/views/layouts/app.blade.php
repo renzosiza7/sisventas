@@ -24,7 +24,7 @@
   <!-- Bootstrap and necessary plugins -->
   <script src="js/jquery.min.js"></script>   
   <!-- vuejs -->
-  <script src="js/app.js"></script> 
+  <script src="{{ asset(mix('js/app.js')) }}"></script>
   <script src="js/popper.min.js"></script>
   <script src="js/bootstrap.min.js"></script>    
   <script src="js/pace.min.js"></script>

@@ -1,6 +1,5 @@
 <template>
-    <main class="main">
-        <!-- Breadcrumb -->
+    <main class="main">        
         <ol class="breadcrumb">            
             <li class="breadcrumb-item"><a href="/">Inicio</a></li>
             <li class="breadcrumb-item active">Caja</li>
@@ -37,18 +36,18 @@
                         </b-alert>
 
                         <b-row>
-                            <b-col md="4" class="my-1">
+                            <b-col sm="12" md="4" lg="4" class="my-1">
                                 <b-form-group label-cols-sm="6" label="Registros por página: " class="mb-0">
                                     <b-form-select v-model="perPage" :options="pageOptions"></b-form-select>
                                 </b-form-group>
                             </b-col>
-                            <b-col offset-md="4" md="4" class="my-1">
+                            <b-col sm="12" offset-md="3" md="5" lg="5" class="my-1">
                                 <b-form-group label-cols-sm="3" label="Buscar: " class="mb-0">
                                     <b-input-group>
                                         <b-form-input v-model="filter" placeholder="Escriba el texto a buscar..."></b-form-input>
-                                        <!--<b-input-group-append>
-                                            <b-button :disabled="!filter" @click="filter = ''">Clear</b-button>
-                                        </b-input-group-append>-->
+                                        <b-input-group-append>
+                                            <b-button :disabled="!filter" @click="filter = ''">Limpiar</b-button>
+                                        </b-input-group-append>
                                     </b-input-group>
                                 </b-form-group>
                             </b-col>                        
@@ -220,13 +219,13 @@
                     descripcion : '',
                     idcajero: '',
                 },
-                columnas: [                    
-                    { key: 'opciones', label: 'Opciones', class: 'text-center' },
+                columnas: [                                        
                     { key : 'nombre_cajero', label : 'Cajero' },
                     { key : 'monto_inicial', label : 'Monto Inicial', class: 'text-center' },
                     { key : 'created_at', label : 'Fecha creación', class: 'text-center' },
                     { key : 'updated_at', label : 'Fecha actualización', class: 'text-center' },                    
                     { key : 'estado', label : 'Estado', class: 'text-center' },                                        
+                    { key: 'opciones', label: 'Opciones', class: 'text-center' },
                 ], 
                 cajas : [],
                 tituloModalNuevoEditar : '',
@@ -252,6 +251,10 @@
                 dismissCountDown: 0,
                 errors : []                                                   
             }
+        },
+        created() {
+            this.listarCaja() 
+            this.getCajeros()
         },        
         methods : {
             actualizarPagina() {                
@@ -265,28 +268,24 @@
             ocultarDetalle(){
                 this.listado = 0
             },
-            listarCaja() {
-                let me = this;
-
+            listarCaja() {                
                 axios.get(`${this.ruta}/caja`)
-                .then(function (response) {                                    
-                    me.cajas = response.data;
-                    me.totalRows = me.cajas.length;
-                })
-                .catch(function (error) {                    
-                    console.log(error);
-                });
+                    .then(response => {                                    
+                        this.cajas = response.data;
+                        this.totalRows = this.cajas.length;
+                    })
+                    .catch(error => {                    
+                        console.log(error);
+                    });
             },       
-            getCajeros() {
-                let me = this;
-
+            getCajeros() {                
                 axios.get(`${this.ruta}/caja/get_cajeros`)
-                .then(function (response) {                                    
-                    me.cajeros = response.data;                    
-                })
-                .catch(function (error) {                    
-                    console.log(error);
-                });
+                    .then(response => {                                    
+                        this.cajeros = response.data;                    
+                    })
+                    .catch(error => {                    
+                        console.log(error);
+                    });
             },                     
             abrirModalNuevoEditar(accion, data=[]) {                
                 this.modalNuevoEditar = true;
@@ -311,55 +310,51 @@
                     }                    
                 }
             },
-            registrarCaja() {
-                let me = this;
+            registrarCaja() {                
                 this.errors = [];
 
                 axios.post(`${this.ruta}/caja/registrar`, {
                     'monto_inicial': this.caja.monto_inicial,                    
                     'idcajero': this.caja.idcajero,                    
-                }).then(function (response) {
-                    me.cerrarModalNuevoEditar();                    
-                    me.listarCaja();
-                    me.successMsg = true;
-                    me.txtSuccessMsg = 'Caja agregada satisfactoriamente.';
-                    me.dismissCountDown = me.dismissSecs;
+                }).then(response => {
+                    this.cerrarModalNuevoEditar();                    
+                    this.listarCaja();
+                    this.successMsg = true;
+                    this.txtSuccessMsg = 'Caja agregada satisfactoriamente.';
+                    this.dismissCountDown = this.dismissSecs;
                                         
-                }).catch(function (error) {
-                    console.log(error);
+                }).catch(error => {                    
                     if (error.response.status==422) {
-                        me.errors = error.response.data.errors;
+                        this.errors = error.response.data.errors;
                     }
                     else {
-                        me.cerrarModalNuevoEditar();                    
-                        me.errorMsg = true;
-                        me.txtErrorMsg = 'Error al agregar la caja.';
-                        me.dismissCountDown = me.dismissSecs;
+                        this.cerrarModalNuevoEditar();                    
+                        this.errorMsg = true;
+                        this.txtErrorMsg = 'Error al agregar la caja.';
+                        this.dismissCountDown = this.dismissSecs;
                     }                    
                 });
             },
-            actualizarCaja(){
-                let me = this;
+            actualizarCaja(){                
                 this.errors = [];
 
                 axios.put(`${this.ruta}/caja/actualizar/${this.caja.id}`, {                    
                     'monto_inicial': this.caja.monto_inicial,                    
-                }).then(function (response) {
-                    me.cerrarModalNuevoEditar();                    
-                    me.listarCaja();
-                    me.successMsg = true;
-                    me.txtSuccessMsg = 'Caja actualizada satisfactoriamente.';
-                    me.dismissCountDown = me.dismissSecs;
-                }).catch(function (error) {
-                    console.log(error);
+                }).then(response => {
+                    this.cerrarModalNuevoEditar();                    
+                    this.listarCaja();
+                    this.successMsg = true;
+                    this.txtSuccessMsg = 'Caja actualizada satisfactoriamente.';
+                    this.dismissCountDown = this.dismissSecs;
+                }).catch(error => {                    
                     if (error.response.status==422) {
-                        me.errors = error.response.data.errors;
+                        this.errors = error.response.data.errors;
                     }
                     else {
-                        me.cerrarModalNuevoEditar();                    
-                        me.errorMsg = true;
-                        me.txtErrorMsg = 'Error al actualizar la caja.';
-                        me.dismissCountDown = me.dismissSecs;
+                        this.cerrarModalNuevoEditar();                    
+                        this.errorMsg = true;
+                        this.txtErrorMsg = 'Error al actualizar la caja.';
+                        this.dismissCountDown = this.dismissSecs;
                     }                    
                 });
             },
@@ -379,9 +374,7 @@
                 this.mensajeEliminar = '¿Desea cerrar caja?';                                                                                                        
                                 
             },
-            cerrarCaja() {
-                let me = this;                
-
+            cerrarCaja() {                             
                 axios.put(`${this.ruta}/caja/cerrar/${this.caja.id}`, {                    
                     'total_ventas' : this.caja.total_ventas,                    
                     'total_servicios' : this.caja.total_servicios,                    
@@ -392,18 +385,17 @@
                     'saldo_caja' : this.caja.saldo_caja,                    
                     'diferencia' : this.caja.diferencia,                    
                 })
-                .then(function (response) {
-                    me.cerrarModalEliminar();                    
-                    me.listarCaja();
-                    me.successMsg = true;
-                    me.txtSuccessMsg = 'Caja cerrada satisfactoriamente.';
-                    me.dismissCountDown = me.dismissSecs;
-                }).catch(function (error) {
-                    //console.log(error);
-                    me.cerrarModalEliminar();         
-                    me.errorMsg = true;
-                    me.txtErrorMsg = 'Error al cerrar la caja.';
-                    me.dismissCountDown = me.dismissSecs;                    
+                .then(response => {
+                    this.cerrarModalEliminar();                    
+                    this.listarCaja();
+                    this.successMsg = true;
+                    this.txtSuccessMsg = 'Caja cerrada satisfactoriamente.';
+                    this.dismissCountDown = this.dismissSecs;
+                }).catch(error => {                    
+                    this.cerrarModalEliminar();         
+                    this.errorMsg = true;
+                    this.txtErrorMsg = 'Error al cerrar la caja.';
+                    this.dismissCountDown = this.dismissSecs;                    
                 });
             },           
             cerrarModalEliminar() {
@@ -422,19 +414,14 @@
                 this.txtErrorMsg = '';
                 this.txtSuccessMsg = '';   
             },         
-            onFiltered(filteredItems) {
-                // Trigger pagination to update the number of buttons/pages due to filtering
+            onFiltered(filteredItems) {                
                 this.totalRows = filteredItems.length;
                 this.currentPage = 1;
             },
             countDownChanged(dismissCountDown) {
                 this.dismissCountDown = dismissCountDown;
             },
-        },
-        mounted() {
-            this.listarCaja() 
-            this.getCajeros()
-        }
+        },       
     }
 </script>
 <style scoped>

@@ -24,7 +24,7 @@ class DocumentoXML extends Model
    <cbc:CustomizationID>2.0</cbc:CustomizationID>
    <cbc:ID>'.$comprobante['serie'].'-'.$comprobante['correlativo'].'</cbc:ID>
    <cbc:IssueDate>'.$comprobante['fecha_emision'].'</cbc:IssueDate>
-   <cbc:IssueTime>00:00:00</cbc:IssueTime>
+   <cbc:IssueTime>'.$comprobante['hora_venta'].'</cbc:IssueTime>
    <cbc:DueDate>'.$comprobante['fecha_emision'].'</cbc:DueDate>
    <cbc:InvoiceTypeCode listID="0101">'.$comprobante['tipodoc'].'</cbc:InvoiceTypeCode>
    <cbc:Note languageLocaleID="1000"><![CDATA['.$comprobante['total_texto'].']]></cbc:Note>

@@ -37,18 +37,18 @@
                     </b-alert>
 
                     <b-row>
-                        <b-col md="4" class="my-1">
+                        <b-col sm="12" md="4" lg="4" class="my-1">
                             <b-form-group label-cols-sm="6" label="Registros por página: " class="mb-0">
                                 <b-form-select v-model="perPage" :options="pageOptions"></b-form-select>
                             </b-form-group>
                         </b-col>
-                        <b-col offset-md="4" md="4" class="my-1">
+                        <b-col sm="12" offset-md="3" md="5" lg="5" class="my-1">
                             <b-form-group label-cols-sm="3" label="Buscar: " class="mb-0">
                                 <b-input-group>
                                     <b-form-input v-model="filter" placeholder="Escriba el texto a buscar..."></b-form-input>
-                                    <!--<b-input-group-append>
-                                        <b-button :disabled="!filter" @click="filter = ''">Clear</b-button>
-                                    </b-input-group-append>-->
+                                    <b-input-group-append>
+                                        <b-button :disabled="!filter" @click="filter = ''">Limpiar</b-button>
+                                    </b-input-group-append>
                                 </b-input-group>
                             </b-form-group>
                         </b-col>                        
@@ -167,11 +167,11 @@
                     nombre : '',
                     descripcion : '',
                 },
-                columnas: [                    
-                    { key: 'opciones', label: 'Opciones', class: 'text-center' },
+                columnas: [                                        
                     { key : 'nombre', label : 'Nombre', sortable: true },
                     { key : 'descripcion', label : 'Descripción' },
                     { key : 'condicion', label : 'Condición', class: 'text-center' },                    
+                    { key: 'opciones', label: 'Opciones', class: 'text-center' },
                 ], 
                 tipo_gastos : [],
                 tituloModalNuevoEditar : '',
@@ -197,19 +197,20 @@
                 dismissCountDown: 0,
                 errors : []                             
             }
-        },        
+        }, 
+        created() {
+            this.listarTipoGasto();            
+        },       
         methods : {
-            listarTipoGasto() {
-                let me = this;
-
+            listarTipoGasto() {                
                 axios.get(`${this.ruta}/tipo_gasto`)
-                .then(function (response) {                                    
-                    me.tipo_gastos = response.data;
-                    me.totalRows = me.tipo_gastos.length;
-                })
-                .catch(function (error) {                    
-                    console.log(error);
-                });
+                    .then(response => {                                    
+                        this.tipo_gastos = response.data;
+                        this.totalRows = this.tipo_gastos.length;
+                    })
+                    .catch(error => {                    
+                        console.log(error);
+                    });
             },
             abrirModalNuevoEditar(accion, data=[]) {                
                 this.modalNuevoEditar = true;
@@ -234,56 +235,52 @@
                     }
                 }
             },
-            registrarTipoGasto() {
-                let me = this;
+            registrarTipoGasto() {                
                 this.errors = [];
 
                 axios.post(`${this.ruta}/tipo_gasto/registrar`, {
                     'nombre': this.tipo_gasto.nombre,
                     'descripcion': this.tipo_gasto.descripcion,
-                }).then(function (response) {
-                    me.cerrarModalNuevoEditar();                    
-                    me.listarTipoGasto();
-                    me.successMsg = true;
-                    me.txtSuccessMsg = 'El tip de gasto fue agregado satisfactoriamente.';
-                    me.dismissCountDown = me.dismissSecs;
+                }).then(response => {
+                    this.cerrarModalNuevoEditar();                    
+                    this.listarTipoGasto();
+                    this.successMsg = true;
+                    this.txtSuccessMsg = 'El tip de gasto fue agregado satisfactoriamente.';
+                    this.dismissCountDown = this.dismissSecs;
                                         
-                }).catch(function (error) {
-                    console.log(error);
+                }).catch(error => {                    
                     if (error.response.status==422) {
-                        me.errors = error.response.data.errors;
+                        this.errors = error.response.data.errors;
                     }
                     else {
-                        me.cerrarModalNuevoEditar();                    
-                        me.errorMsg = true;
-                        me.txtErrorMsg = 'Error al agregar el tipo de gasto.';
-                        me.dismissCountDown = me.dismissSecs;
+                        this.cerrarModalNuevoEditar();                    
+                        this.errorMsg = true;
+                        this.txtErrorMsg = 'Error al agregar el tipo de gasto.';
+                        this.dismissCountDown = this.dismissSecs;
                     }                    
                 });
             },
-            actualizarTipoGasto(){
-                let me = this;
+            actualizarTipoGasto() {                
                 this.errors = [];
 
                 axios.put(`${this.ruta}/tipo_gasto/actualizar/${this.tipo_gasto.id}`, {                    
                     'nombre': this.tipo_gasto.nombre,
                     'descripcion': this.tipo_gasto.descripcion,
-                }).then(function (response) {
-                    me.cerrarModalNuevoEditar();                    
-                    me.listarTipoGasto();
-                    me.successMsg = true;
-                    me.txtSuccessMsg = 'El tipo de gasto fue actualizado satisfactoriamente.';
-                    me.dismissCountDown = me.dismissSecs;
-                }).catch(function (error) {
-                    console.log(error);
+                }).then(response => {
+                    this.cerrarModalNuevoEditar();                    
+                    this.listarTipoGasto();
+                    this.successMsg = true;
+                    this.txtSuccessMsg = 'El tipo de gasto fue actualizado satisfactoriamente.';
+                    this.dismissCountDown = this.dismissSecs;
+                }).catch(error => {                    
                     if (error.response.status==422) {
-                        me.errors = error.response.data.errors;
+                        this.errors = error.response.data.errors;
                     }
                     else {
-                        me.cerrarModalNuevoEditar();                    
-                        me.errorMsg = true;
-                        me.txtErrorMsg = 'Error al actualizar el tipo de gasto.';
-                        me.dismissCountDown = me.dismissSecs;
+                        this.cerrarModalNuevoEditar();                    
+                        this.errorMsg = true;
+                        this.txtErrorMsg = 'Error al actualizar el tipo de gasto.';
+                        this.dismissCountDown = this.dismissSecs;
                     }                    
                 });
             },
@@ -319,40 +316,34 @@
                     }
                 }               
             },
-            activarTipoGasto() {
-                let me = this;                
-
+            activarTipoGasto() {                        
                 axios.put(`${this.ruta}/tipo_gasto/activar/${this.tipo_gasto.id}`)
-                .then(function (response) {
-                    me.cerrarModalEliminar();                    
-                    me.listarTipoGasto();
-                    me.successMsg = true;
-                    me.txtSuccessMsg = 'El tipo de gasto fue activado satisfactoriamente.';
-                    me.dismissCountDown = me.dismissSecs;
-                }).catch(function (error) {
-                    //console.log(error);
-                    me.cerrarModalEliminar();         
-                    me.errorMsg = true;
-                    me.txtErrorMsg = 'Error al activar el tipo de gasto.';
-                    me.dismissCountDown = me.dismissSecs;                    
+                .then(response => {
+                    this.cerrarModalEliminar();                    
+                    this.listarTipoGasto();
+                    this.successMsg = true;
+                    this.txtSuccessMsg = 'El tipo de gasto fue activado satisfactoriamente.';
+                    this.dismissCountDown = this.dismissSecs;
+                }).catch(error => {                    
+                    this.cerrarModalEliminar();         
+                    this.errorMsg = true;
+                    this.txtErrorMsg = 'Error al activar el tipo de gasto.';
+                    this.dismissCountDown = this.dismissSecs;                    
                 });
             },
-            desactivarTipoGasto() {
-                let me = this;                
-
+            desactivarTipoGasto() {                           
                 axios.put(`${this.ruta}/tipo_gasto/desactivar/${this.tipo_gasto.id}`)
-                .then(function (response) {
-                    me.cerrarModalEliminar();                    
-                    me.listarTipoGasto();
-                    me.successMsg = true;
-                    me.txtSuccessMsg = 'El tipo de gasto fue desactivado satisfactoriamente.';
-                    me.dismissCountDown = me.dismissSecs;
-                }).catch(function (error) {
-                    //console.log(error);
-                    me.cerrarModalEliminar();         
-                    me.errorMsg = true;
-                    me.txtErrorMsg = 'Error al desactivar el tipo de gasto.';
-                    me.dismissCountDown = me.dismissSecs;                                        
+                .then(response => {
+                    this.cerrarModalEliminar();                    
+                    this.listarTipoGasto();
+                    this.successMsg = true;
+                    this.txtSuccessMsg = 'El tipo de gasto fue desactivado satisfactoriamente.';
+                    this.dismissCountDown = this.dismissSecs;
+                }).catch(error => {                    
+                    this.cerrarModalEliminar();         
+                    this.errorMsg = true;
+                    this.txtErrorMsg = 'Error al desactivar el tipo de gasto.';
+                    this.dismissCountDown = this.dismissSecs;                                        
                 });
             },
             cerrarModalEliminar() {
@@ -362,18 +353,14 @@
                 this.txtErrorMsg = '';
                 this.txtSuccessMsg = '';   
             },            
-            onFiltered(filteredItems) {
-                // Trigger pagination to update the number of buttons/pages due to filtering
+            onFiltered(filteredItems) {                
                 this.totalRows = filteredItems.length;
                 this.currentPage = 1;
             },
             countDownChanged(dismissCountDown) {
                 this.dismissCountDown = dismissCountDown;
             },
-        },
-        mounted() {
-            this.listarTipoGasto();            
-        }
+        },        
     }
 </script>
 <style scoped>

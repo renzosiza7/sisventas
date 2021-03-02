@@ -1,12 +1,10 @@
 <template>
-    <main class="main">
-        <!-- Breadcrumb -->
+    <main class="main">        
         <ol class="breadcrumb">            
             <li class="breadcrumb-item"><a href="/">Inicio</a></li>
             <li class="breadcrumb-item active">Marcas</li>
         </ol>
-        <div class="container-fluid">
-            <!-- Ejemplo de tabla Listado -->
+        <div class="container-fluid">            
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Marcas
@@ -40,18 +38,18 @@
                     </b-alert>
 
                     <b-row>
-                        <b-col md="4" class="my-1">
+                        <b-col sm="12" md="4" lg="4" class="my-1">
                             <b-form-group label-cols-sm="6" label="Registros por página: " class="mb-0">
                                 <b-form-select v-model="perPage" :options="pageOptions"></b-form-select>
                             </b-form-group>
                         </b-col>
-                        <b-col offset-md="4" md="4" class="my-1">
+                        <b-col sm="12" offset-md="3" md="5" lg="5" class="my-1">
                             <b-form-group label-cols-sm="3" label="Buscar: " class="mb-0">
                                 <b-input-group>
                                     <b-form-input v-model="filter" placeholder="Escriba el texto a buscar..."></b-form-input>
-                                    <!--<b-input-group-append>
-                                        <b-button :disabled="!filter" @click="filter = ''">Clear</b-button>
-                                    </b-input-group-append>-->
+                                    <b-input-group-append>
+                                        <b-button :disabled="!filter" @click="filter = ''">Limpiar</b-button>
+                                    </b-input-group-append>
                                 </b-input-group>
                             </b-form-group>
                         </b-col>                        
@@ -179,12 +177,12 @@
                     descripcion : '',
                     acceso: 'privado',                    
                 },
-                columnas: [                    
-                    { key: 'opciones', label: 'Opciones', class: 'text-center' },
+                columnas: [                                        
                     { key : 'nombre', label : 'Nombre', sortable: true },
                     { key : 'descripcion', label : 'Descripción' },
                     { key : 'acceso', label : 'Acceso', class: 'text-center' },
                     { key : 'condicion', label : 'Condición', class: 'text-center' },                    
+                    { key: 'opciones', label: 'Opciones', class: 'text-center' },
                 ], 
                 marcas : [],                
                 tieneArticulos : false,
@@ -211,17 +209,18 @@
                 dismissCountDown: 0,
                 errors : []                             
             }
-        },        
+        },   
+        created() {
+            this.listarMarca();            
+        },     
         methods : {            
-            listarMarca() {
-                let me = this;
-
+            listarMarca() {               
                 axios.get(`${this.ruta}/marca`)
-                .then(function (response) {                                    
-                    me.marcas = response.data;
-                    me.totalRows = me.marcas.length;
+                .then(response => {                                    
+                    this.marcas = response.data;
+                    this.totalRows = this.marcas.length;
                 })
-                .catch(function (error) {                    
+                .catch(error => {                    
                     console.log(error);
                 });
             },
@@ -258,59 +257,56 @@
                     this.actualizarMarca()
                 }
             },
-            registrarMarca() {
-                let me = this;
+            registrarMarca() {                
                 this.errors = [];
                 
                 axios.post(`${this.ruta}/marca/registrar`, {
                     'nombre': this.marca.nombre,
                     'descripcion': this.marca.descripcion,
                     'acceso': this.marca.acceso
-                }).then(function (response) {
-                    me.cerrarModalNuevoEditar();                    
-                    me.listarMarca();
-                    me.successMsg = true;
-                    me.txtSuccessMsg = 'La marca fue agregada satisfactoriamente.';
-                    me.dismissCountDown = me.dismissSecs;
+                }).then(response => {
+                    this.cerrarModalNuevoEditar();                    
+                    this.listarMarca();
+                    this.successMsg = true;
+                    this.txtSuccessMsg = 'La marca fue agregada satisfactoriamente.';
+                    this.dismissCountDown = this.dismissSecs;
                                         
-                }).catch(function (error) {
+                }).catch(error => {
                     console.log(error);
                     if (error.response.status==422) {
-                        me.errors = error.response.data.errors;
+                        this.errors = error.response.data.errors;
                     }
                     else {
-                        me.cerrarModalNuevoEditar();                    
-                        me.errorMsg = true;
-                        me.txtErrorMsg = 'Error al agregar la marca.';
-                        me.dismissCountDown = me.dismissSecs;
+                        this.cerrarModalNuevoEditar();                    
+                        this.errorMsg = true;
+                        this.txtErrorMsg = 'Error al agregar la marca.';
+                        this.dismissCountDown = this.dismissSecs;
                     }                    
                 });
                 
             },
-            actualizarMarca(){
-                let me = this;
+            actualizarMarca() {                
                 this.errors = [];
                 
                 axios.put(`${this.ruta}/marca/actualizar/${this.marca.id}`, {                    
                     'nombre': this.marca.nombre,
                     'descripcion': this.marca.descripcion,
                     'acceso': this.marca.acceso
-                }).then(function (response) {
-                    me.cerrarModalNuevoEditar();                    
-                    me.listarMarca();
-                    me.successMsg = true;
-                    me.txtSuccessMsg = 'La marca fue actualizada satisfactoriamente.';
-                    me.dismissCountDown = me.dismissSecs;
-                }).catch(function (error) {
-                    console.log(error);
+                }).then(response => {
+                    this.cerrarModalNuevoEditar();                    
+                    this.listarMarca();
+                    this.successMsg = true;
+                    this.txtSuccessMsg = 'La marca fue actualizada satisfactoriamente.';
+                    this.dismissCountDown = this.dismissSecs;
+                }).catch(error => {                    
                     if (error.response.status==422) {
-                        me.errors = error.response.data.errors;
+                        this.errors = error.response.data.errors;
                     }
                     else {
-                        me.cerrarModalNuevoEditar();                    
-                        me.errorMsg = true;
-                        me.txtErrorMsg = 'Error al actualizar la marca.';
-                        me.dismissCountDown = me.dismissSecs;
+                        this.cerrarModalNuevoEditar();                    
+                        this.errorMsg = true;
+                        this.txtErrorMsg = 'Error al actualizar la marca.';
+                        this.dismissCountDown = this.dismissSecs;
                     }                    
                 });                
             },
@@ -347,40 +343,34 @@
                     }
                 }               
             },
-            activarMarca() {
-                let me = this;                
-
+            activarMarca() {                     
                 axios.put(`${this.ruta}/marca/activar/${this.marca.id}`)
-                .then(function (response) {
-                    me.cerrarModalEliminar();                    
-                    me.listarMarca();
-                    me.successMsg = true;
-                    me.txtSuccessMsg = 'La marca fue activada satisfactoriamente.';
-                    me.dismissCountDown = me.dismissSecs;
-                }).catch(function (error) {
-                    //console.log(error);
-                    me.cerrarModalEliminar();         
-                    me.errorMsg = true;
-                    me.txtErrorMsg = 'Error al activar la marca.';
-                    me.dismissCountDown = me.dismissSecs;                    
+                .then(response => {
+                    this.cerrarModalEliminar();                    
+                    this.listarMarca();
+                    this.successMsg = true;
+                    this.txtSuccessMsg = 'La marca fue activada satisfactoriamente.';
+                    this.dismissCountDown = this.dismissSecs;
+                }).catch(error => {                    
+                    this.cerrarModalEliminar();         
+                    this.errorMsg = true;
+                    this.txtErrorMsg = 'Error al activar la marca.';
+                    this.dismissCountDown = this.dismissSecs;                    
                 });
             },            
-            desactivarMarca() {
-                let me = this;                
-
+            desactivarMarca() {                              
                 axios.put(`${this.ruta}/marca/desactivar/${this.marca.id}`)
-                .then(function (response) {
-                    me.cerrarModalEliminar();                    
-                    me.listarMarca();
-                    me.successMsg = true;
-                    me.txtSuccessMsg = 'La marca fue desactivada satisfactoriamente.';
-                    me.dismissCountDown = me.dismissSecs;
-                }).catch(function (error) {
-                    //console.log(error);
-                    me.cerrarModalEliminar();         
-                    me.errorMsg = true;
-                    me.txtErrorMsg = 'Error al desactivar la marca.';
-                    me.dismissCountDown = me.dismissSecs;                                        
+                .then(response => {
+                    this.cerrarModalEliminar();                    
+                    this.listarMarca();
+                    this.successMsg = true;
+                    this.txtSuccessMsg = 'La marca fue desactivada satisfactoriamente.';
+                    this.dismissCountDown = this.dismissSecs;
+                }).catch(error => {                    
+                    this.cerrarModalEliminar();         
+                    this.errorMsg = true;
+                    this.txtErrorMsg = 'Error al desactivar la marca.';
+                    this.dismissCountDown = this.dismissSecs;                                        
                 });                
             },
             cerrarModalEliminar() {
@@ -393,22 +383,17 @@
             cargarPdf(){
                 window.open(this.ruta + '/marca/listarPdf','_blank');
             },
-            onFiltered(filteredItems) {
-                // Trigger pagination to update the number of buttons/pages due to filtering
+            onFiltered(filteredItems) {                
                 this.totalRows = filteredItems.length;
                 this.currentPage = 1;
             },
             countDownChanged(dismissCountDown) {
                 this.dismissCountDown = dismissCountDown;
             },            
-        },
-        mounted() {
-            this.listarMarca();            
-        }
+        },        
     }
 </script>
-<style scoped>
-    /* Modal styles */
+<style scoped>    
     .modal .modal-dialog {
         max-width: 400px;
         margin: 3.75rem auto;
@@ -459,6 +444,5 @@
     }
     .size_img {
         width: 150px;
-    }
-    
+    }    
 </style>

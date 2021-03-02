@@ -1,12 +1,10 @@
 <template>
-    <main class="main">
-        <!-- Breadcrumb -->
+    <main class="main">        
         <ol class="breadcrumb">            
             <li class="breadcrumb-item"><a href="/">Inicio</a></li>
             <li class="breadcrumb-item active">Artículos</li>
         </ol>
-        <div class="container-fluid">
-            <!-- Ejemplo de tabla Listado -->
+        <div class="container-fluid">            
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Artículos
@@ -40,18 +38,18 @@
                     </b-alert>
 
                     <b-row>
-                        <b-col md="4" class="my-1">
+                        <b-col sm="12" md="4" lg="4" class="my-1">
                             <b-form-group label-cols-sm="6" label="Registros por página: " class="mb-0">
                                 <b-form-select v-model="perPage" :options="pageOptions"></b-form-select>
                             </b-form-group>
                         </b-col>
-                        <b-col offset-md="4" md="4" class="my-1">
+                        <b-col sm="12" offset-md="3" md="5" lg="5" class="my-1">
                             <b-form-group label-cols-sm="3" label="Buscar: " class="mb-0">
                                 <b-input-group>
                                     <b-form-input v-model="filter" placeholder="Escriba el texto a buscar..."></b-form-input>
-                                    <!--<b-input-group-append>
-                                        <b-button :disabled="!filter" @click="filter = ''">Clear</b-button>
-                                    </b-input-group-append>-->
+                                    <b-input-group-append>
+                                        <b-button :disabled="!filter" @click="filter = ''">Limpiar</b-button>
+                                    </b-input-group-append>
                                 </b-input-group>
                             </b-form-group>
                         </b-col>                        
@@ -338,8 +336,7 @@
                 categorias : [],
                 marcasActivas : [],
                 marcas : [],
-                columnas: [                                        
-                    { key: 'opciones', label: 'Opciones', class: 'text-center' },
+                columnas: [                                                            
                     { key : 'codigo', label : 'Código', class: 'text-center' },
                     { key : 'nombre', label : 'Artículo', sortable: true },
                     //{ key : 'categoria', label : 'Categoría', sortable: true },
@@ -349,6 +346,7 @@
                     { key : 'stock', label : 'Stock', class: 'text-center' },            
 					{ key : 'acceso', label : 'Acceso', class: 'text-center' },            
                     { key : 'condicion', label : 'Condición', class: 'text-center' },            
+                    { key: 'opciones', label: 'Opciones', class: 'text-center' },
                 ], 
                 columnas2: [// columnas para vendedor y cajero sin opciones                    
                     { key : 'codigo', label : 'Código', class: 'text-center' },
@@ -398,57 +396,47 @@
                 }.bind(this), false)
                 reader.readAsDataURL(this.articulo.imagen)
             },
-            listarArticulo() {
-                let me = this;
-
+            listarArticulo() {               
                 axios.get(`${this.ruta}/articulo`)
-                .then(function (response) {                                                        
-                    me.articulos = response.data;
-                    me.totalRows = me.articulos.length;
+                .then(response => {                                                        
+                    this.articulos = response.data;
+                    this.totalRows = this.articulos.length;
                 })
-                .catch(function (error) {                    
+                .catch(error => {                    
                     console.log(error);
                 });
             },
-            getCategoriasActivas() {
-                let me = this;
-
+            getCategoriasActivas() {                
                 axios.get(`${this.ruta}/categoria/select_categoria`)
-                .then(function (response) {                                                        
-                    me.categoriasActivas = response.data;                    
+                .then(response => {                                                        
+                    this.categoriasActivas = response.data;                    
                 })
-                .catch(function (error) {                    
+                .catch(error => {                    
                     console.log(error);
                 });
             },
-            getCategorias() {
-                let me = this;
-
+            getCategorias() {              
                 axios.get(`${this.ruta}/categoria`)
-                .then(function (response) {                                                        
-                    me.categorias = response.data;                    
+                .then(response => {                                                        
+                    this.categorias = response.data;                    
                 })
-                .catch(function (error) {                    
+                .catch(error => {                    
                     console.log(error);
                 });
             },
-            getMarcasActivas() {
-                let me = this;
-
+            getMarcasActivas() {                
                 axios.get(`${this.ruta}/marca/select_marca`)
-                .then(function (response) {                                                        
-                    me.marcasActivas = response.data;                    
+                .then(response => {                                                        
+                    this.marcasActivas = response.data;                    
                 })
-                .catch(function (error) {                    
+                .catch(error => {                    
                     console.log(error);
                 });
             },
-            getMarcas() {
-                let me = this;
-
+            getMarcas() {                
                 axios.get(`${this.ruta}/marca`)
-                .then(function (response) {                                                        
-                    me.marcas = response.data;                    
+                .then(response => {                                                        
+                    this.marcas = response.data;                    
                 })
                 .catch(function (error) {                    
                     console.log(error);
@@ -495,10 +483,8 @@
                     }
                 }
             },
-            registrarArticulo() {
-                let me = this;
+            registrarArticulo() {                
                 this.errors = [];
-
                 let formData = new FormData();
 
                 formData.append('codigo', this.articulo.codigo);                
@@ -517,30 +503,27 @@
                     headers: {
                         'Content-Type': 'multipart/form-data'
                     }
-                }).then(function (response) {
-                    me.cerrarModalNuevoEditar();                    
-                    me.listarArticulo();
-                    me.successMsg = true;
-                    me.txtSuccessMsg = 'El artículo fue agregado satisfactoriamente.';
-                    me.dismissCountDown = me.dismissSecs;
+                }).then(response => {
+                    this.cerrarModalNuevoEditar();                    
+                    this.listarArticulo();
+                    this.successMsg = true;
+                    this.txtSuccessMsg = 'El artículo fue agregado satisfactoriamente.';
+                    this.dismissCountDown = this.dismissSecs;
                                         
-                }).catch(function (error) {
-                    console.log(error);
+                }).catch(error => {                    
                     if (error.response.status==422) {
-                        me.errors = error.response.data.errors;
+                        this.errors = error.response.data.errors;
                     }
                     else {
-                        me.cerrarModalNuevoEditar();                    
-                        me.errorMsg = true;
-                        me.txtErrorMsg = 'Error al agregar el artículo.';
-                        me.dismissCountDown = me.dismissSecs;
+                        this.cerrarModalNuevoEditar();                    
+                        this.errorMsg = true;
+                        this.txtErrorMsg = 'Error al agregar el artículo.';
+                        this.dismissCountDown = this.dismissSecs;
                     }                    
                 });
             },
-            actualizarArticulo() {
-                let me = this;
+            actualizarArticulo() {                
                 this.errors = [];
-
                 let formData = new FormData();
 
                 formData.append('codigo', this.articulo.codigo);                
@@ -560,22 +543,21 @@
                     headers: {
                         'Content-Type': 'multipart/form-data'
                     }
-                }).then(function (response) {
-                    me.cerrarModalNuevoEditar();                    
-                    me.listarArticulo();
-                    me.successMsg = true;
-                    me.txtSuccessMsg = 'El artículo fue actualizado satisfactoriamente.';
-                    me.dismissCountDown = me.dismissSecs;
-                }).catch(function (error) {
-                    console.log(error);
+                }).then(response => {
+                    this.cerrarModalNuevoEditar();                    
+                    this.listarArticulo();
+                    this.successMsg = true;
+                    this.txtSuccessMsg = 'El artículo fue actualizado satisfactoriamente.';
+                    this.dismissCountDown = this.dismissSecs;
+                }).catch(error => {                    
                     if (error.response.status==422) {
-                        me.errors = error.response.data.errors;
+                        this.errors = error.response.data.errors;
                     }
                     else {
-                        me.cerrarModalNuevoEditar();                    
-                        me.errorMsg = true;
-                        me.txtErrorMsg = 'Error al actualizar el artículo.';
-                        me.dismissCountDown = me.dismissSecs;
+                        this.cerrarModalNuevoEditar();                    
+                        this.errorMsg = true;
+                        this.txtErrorMsg = 'Error al actualizar el artículo.';
+                        this.dismissCountDown = this.dismissSecs;
                     }                    
                 });
             },
@@ -619,40 +601,34 @@
                     }
                 }               
             },
-            activarArticulo() {
-                let me = this;                
-
+            activarArticulo() {                          
                 axios.put(`${this.ruta}/articulo/activar/${this.articulo.id}`)
-                .then(function (response) {
-                    me.cerrarModalEliminar();                    
-                    me.listarArticulo();
-                    me.successMsg = true;
-                    me.txtSuccessMsg = 'El artículo fue activado satisfactoriamente.';
-                    me.dismissCountDown = me.dismissSecs;
-                }).catch(function (error) {
-                    //console.log(error);
-                    me.cerrarModalEliminar();         
-                    me.errorMsg = true;
-                    me.txtErrorMsg = 'Error al activar el artículo.';
-                    me.dismissCountDown = me.dismissSecs;                    
+                .then(response => {
+                    this.cerrarModalEliminar();                    
+                    this.listarArticulo();
+                    this.successMsg = true;
+                    this.txtSuccessMsg = 'El artículo fue activado satisfactoriamente.';
+                    this.dismissCountDown = this.dismissSecs;
+                }).catch(error => {                    
+                    this.cerrarModalEliminar();         
+                    this.errorMsg = true;
+                    this.txtErrorMsg = 'Error al activar el artículo.';
+                    this.dismissCountDown = this.dismissSecs;                    
                 });
             },
-            desactivarArticulo() {
-                let me = this;                
-
+            desactivarArticulo() {               
                 axios.put(`${this.ruta}/articulo/desactivar/${this.articulo.id}`)
-                .then(function (response) {
-                    me.cerrarModalEliminar();                    
-                    me.listarArticulo();
-                    me.successMsg = true;
-                    me.txtSuccessMsg = 'El artículo fue desactivado satisfactoriamente.';
-                    me.dismissCountDown = me.dismissSecs;
-                }).catch(function (error) {
-                    //console.log(error);
-                    me.cerrarModalEliminar();         
-                    me.errorMsg = true;
-                    me.txtErrorMsg = 'Error al desactivar el artículo.';
-                    me.dismissCountDown = me.dismissSecs;                                        
+                .then(response => {
+                    this.cerrarModalEliminar();                    
+                    this.listarArticulo();
+                    this.successMsg = true;
+                    this.txtSuccessMsg = 'El artículo fue desactivado satisfactoriamente.';
+                    this.dismissCountDown = this.dismissSecs;
+                }).catch(error => {                    
+                    this.cerrarModalEliminar();         
+                    this.errorMsg = true;
+                    this.txtErrorMsg = 'Error al desactivar el artículo.';
+                    this.dismissCountDown = this.dismissSecs;                                        
                 });
             },
             cerrarModalEliminar() {
@@ -665,8 +641,7 @@
             cargarPdf(){
                 window.open(this.ruta + '/articulo/listarPdf','_blank');
             },
-            onFiltered(filteredItems) {
-                // Trigger pagination to update the number of buttons/pages due to filtering
+            onFiltered(filteredItems) {                
                 this.totalRows = filteredItems.length;
                 this.currentPage = 1;
             },
@@ -683,8 +658,7 @@
         }
     }
 </script>
-<style scoped>
-    /* Modal styles */
+<style scoped>    
     .modal .modal-dialog {
         max-width: 500px;
         margin: 3.75rem auto;

@@ -14,9 +14,9 @@
                     <button type="button" @click="cargarPdf()" class="btn btn-info">
                         <i class="icon-doc"></i>&nbsp;Reporte
                     </button>
-                    <button type="button" @click="generar_xml()" class="btn btn-danger">
+                    <!--<button type="button" @click="generar_xml()" class="btn btn-danger">
                         <i class="icon-doc"></i>&nbsp;Crear factura
-                    </button>
+                    </button>-->
                 </div>
                 <div class="card-body"> 
                     <b-alert
@@ -41,12 +41,12 @@
                     </b-alert>
 
                     <b-row>
-                        <b-col md="4" class="my-1">
+                        <b-col sm="12" md="4" lg="4" class="my-1">
                             <b-form-group label-cols-sm="6" label="Registros por página: " class="mb-0">
                                 <b-form-select v-model="perPage" :options="pageOptions"></b-form-select>
                             </b-form-group>
                         </b-col>
-                        <b-col offset-md="3" md="5" class="my-1">
+                        <b-col sm="12" offset-md="3" md="5" lg="5" class="my-1">
                             <b-form-group label-cols-sm="3" label="Buscar: " class="mb-0">
                                 <b-input-group>
                                     <b-form-input v-model="filter" placeholder="Escriba el texto a buscar..."></b-form-input>
@@ -179,12 +179,12 @@
                     descripcion : '',
                     acceso: 'privado',                    
                 },
-                columnas: [                    
-                    { key: 'opciones', label: 'Opciones', class: 'text-center' },
+                columnas: [                                        
                     { key : 'nombre', label : 'Nombre', sortable: true },
                     { key : 'descripcion', label : 'Descripción' },
                     { key : 'acceso', label : 'Acceso', class: 'text-center' },
                     { key : 'condicion', label : 'Condición', class: 'text-center' },                    
+                    { key: 'opciones', label: 'Opciones', class: 'text-center' },
                 ], 
                 categorias : [],                
                 tituloModalNuevoEditar : '',
@@ -273,13 +273,14 @@
                     this.dismissCountDown = this.dismissSecs;                                        
                 }).catch(error => {                    
                     if (error.response.status==422) {
-                        me.errors = error.response.data.errors;
+                        this.errors = error.response.data.errors;
+                        console.log('jeiken')
                     }
                     else {
-                        me.cerrarModalNuevoEditar()
-                        me.errorMsg = true
-                        me.txtErrorMsg = 'Error al agregar la categoría.'
-                        me.dismissCountDown = me.dismissSecs
+                        this.cerrarModalNuevoEditar()
+                        this.errorMsg = true
+                        this.txtErrorMsg = 'Error al agregar la categoría.'
+                        this.dismissCountDown = this.dismissSecs
                     }                    
                 })               
             },
@@ -381,15 +382,14 @@
             cargarPdf(){
                 window.open(this.ruta + '/categoria/listarPdf','_blank');
             },
-            generar_xml(){
-                let me = this
-                //window.open(this.ruta + '/facturacion/generar_xml','_blank');
-                axios.post(`${me.ruta}/factura/registrar`, {                    
-                }).then(function (response) {                    
+            generar_xml(){                
+                window.open(this.ruta + '/facturacion/generar_xml','_blank');
+                /*axios.post(`${this.ruta}/factura/registrar`, {                    
+                }).then(response => {                    
                     console.log(response.data)                    
-                }).catch(function (error) {
+                }).catch(error => {
                     
-                })
+                })*/
             },
             onFiltered(filteredItems) {                
                 this.totalRows = filteredItems.length;

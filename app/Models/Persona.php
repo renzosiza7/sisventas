@@ -25,7 +25,7 @@ class Persona extends Model
         $clientes = DB::table($this->table)                                 
                         ->where('nombre', 'like', '%'. $filtro . '%')
                         ->orWhere('num_documento', 'like', '%'. $filtro . '%')
-                        ->select('id','nombre','num_documento')
+                        ->select('id','nombre', 'tipo_documento', 'num_documento', 'direccion')
                         ->orderBy('nombre', 'asc')
                         ->get();
 

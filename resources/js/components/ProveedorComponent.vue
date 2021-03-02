@@ -40,18 +40,18 @@
                     </b-alert>
 
                     <b-row>
-                        <b-col md="4" class="my-1">
+                        <b-col sm="12" md="4" lg="4" class="my-1">
                             <b-form-group label-cols-sm="6" label="Registros por página: " class="mb-0">
                                 <b-form-select v-model="perPage" :options="pageOptions"></b-form-select>
                             </b-form-group>
                         </b-col>
-                        <b-col offset-md="4" md="4" class="my-1">
+                        <b-col sm="12" offset-md="3" md="5" lg="5" class="my-1">
                             <b-form-group label-cols-sm="3" label="Buscar: " class="mb-0">
                                 <b-input-group>
                                     <b-form-input v-model="filter" placeholder="Escriba el texto a buscar..."></b-form-input>
-                                    <!--<b-input-group-append>
-                                        <b-button :disabled="!filter" @click="filter = ''">Clear</b-button>
-                                    </b-input-group-append>-->
+                                    <b-input-group-append>
+                                        <b-button :disabled="!filter" @click="filter = ''">Limpiar</b-button>
+                                    </b-input-group-append>
                                 </b-input-group>
                             </b-form-group>
                         </b-col>                        
@@ -189,13 +189,13 @@
                     contacto : '',
                     telefono_contacto : ''
                 },
-                columnas: [                    
-                    { key: 'opciones', label: 'Opciones', class: 'text-center' },                    
+                columnas: [                                                            
                     { key : 'nombre', label : 'Nombre', sortable: true },                    
                     { key : 'documento', label : 'Documento' },                    
                     { key : 'telefono', label : 'Teléfono', class: 'text-center' },         
                     { key : 'email', label : 'email', class: 'text-center' },  
                     { key : 'contacto', label : 'Contacto' },             
+                    { key: 'opciones', label: 'Opciones', class: 'text-center' },
                 ], 
                 proveedores : [],
                 tituloModalNuevoEditar : '',                
@@ -217,17 +217,18 @@
                 dismissCountDown: 0,
                 errors : []                             
             }
-        },        
+        }, 
+        created() {
+            this.listarProveedor();            
+        },       
         methods : {
-            listarProveedor() {
-                let me = this;
-
+            listarProveedor() {                
                 axios.get(`${this.ruta}/proveedor`)
-                .then(function (response) {                                    
-                    me.proveedores = response.data;
-                    me.totalRows = me.proveedores.length;
+                .then(response => {                                    
+                    this.proveedores = response.data;
+                    this.totalRows = this.proveedores.length;
                 })
-                .catch(function (error) {                    
+                .catch(error => {                    
                     console.log(error);
                 });
             },
@@ -266,8 +267,7 @@
                     }
                 }
             },
-            registrarProveedor() {
-                let me = this;
+            registrarProveedor() {               
                 this.errors = [];
 
                 axios.post(`${this.ruta}/proveedor/registrar`, {
@@ -279,28 +279,26 @@
                     'email': this.proveedor.email, 
                     'contacto': this.proveedor.contacto, 
                     'telefono_contacto': this.proveedor.telefono_contacto,                    
-                }).then(function (response) {
-                    me.cerrarModalNuevoEditar();                    
-                    me.listarProveedor();
-                    me.successMsg = true;
-                    me.txtSuccessMsg = 'El proveedor fue agregado satisfactoriamente.';
-                    me.dismissCountDown = me.dismissSecs;
+                }).then(response => {
+                    this.cerrarModalNuevoEditar();                    
+                    this.listarProveedor();
+                    this.successMsg = true;
+                    this.txtSuccessMsg = 'El proveedor fue agregado satisfactoriamente.';
+                    this.dismissCountDown = this.dismissSecs;
                                         
-                }).catch(function (error) {
-                    console.log(error);
+                }).catch(error => {                    
                     if (error.response.status==422) {
-                        me.errors = error.response.data.errors;
+                        this.errors = error.response.data.errors;
                     }
                     else {
-                        me.cerrarModalNuevoEditar();                    
-                        me.errorMsg = true;
-                        me.txtErrorMsg = 'Error al agregar el proveedor.';
-                        me.dismissCountDown = me.dismissSecs;
+                        this.cerrarModalNuevoEditar();                    
+                        this.errorMsg = true;
+                        this.txtErrorMsg = 'Error al agregar el proveedor.';
+                        this.dismissCountDown = this.dismissSecs;
                     }                    
                 });
             },
-            actualizarProveedor(){
-                let me = this;
+            actualizarProveedor(){                
                 this.errors = [];
 
                 axios.put(`${this.ruta}/proveedor/actualizar/${this.proveedor.id}`, {                    
@@ -312,22 +310,21 @@
                     'email': this.proveedor.email,                      
                     'contacto': this.proveedor.contacto, 
                     'telefono_contacto': this.proveedor.telefono_contacto,                    
-                }).then(function (response) {
-                    me.cerrarModalNuevoEditar();                    
-                    me.listarProveedor();
-                    me.successMsg = true;
-                    me.txtSuccessMsg = 'El proveedor fue actualizado satisfactoriamente.';
-                    me.dismissCountDown = me.dismissSecs;
-                }).catch(function (error) {
-                    console.log(error);
+                }).then(response => {
+                    this.cerrarModalNuevoEditar();                    
+                    this.listarProveedor();
+                    this.successMsg = true;
+                    this.txtSuccessMsg = 'El proveedor fue actualizado satisfactoriamente.';
+                    this.dismissCountDown = this.dismissSecs;
+                }).catch(error => {                    
                     if (error.response.status==422) {
-                        me.errors = error.response.data.errors;
+                        this.errors = error.response.data.errors;
                     }
                     else {
-                        me.cerrarModalNuevoEditar();                    
-                        me.errorMsg = true;
-                        me.txtErrorMsg = 'Error al actualizar el proveedor.';
-                        me.dismissCountDown = me.dismissSecs;
+                        this.cerrarModalNuevoEditar();                    
+                        this.errorMsg = true;
+                        this.txtErrorMsg = 'Error al actualizar el proveedor.';
+                        this.dismissCountDown = this.dismissSecs;
                     }                    
                 });
             },
@@ -350,18 +347,14 @@
             cargarPdf(){
                 window.open(this.ruta + '/proveedor/listarPdf','_blank');
             },
-            onFiltered(filteredItems) {
-                // Trigger pagination to update the number of buttons/pages due to filtering
+            onFiltered(filteredItems) {                
                 this.totalRows = filteredItems.length;
                 this.currentPage = 1;
             },
             countDownChanged(dismissCountDown) {
                 this.dismissCountDown = dismissCountDown;
             },
-        },
-        mounted() {
-            this.listarProveedor();            
-        }
+        },        
     }
 </script>
 <style scoped>

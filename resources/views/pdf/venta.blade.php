@@ -215,14 +215,14 @@
                             <th></th>
                             <th></th>
                             <th align="right">SUBTOTAL</th>
-                            <td align="right">S/. {{number_format($v->total-($v->total*$v->impuesto),2)}}</td>
+                            <td align="right">S/. {{number_format($v->total-(($v->total*$v->impuesto)/(1+$v->impuesto)),2)}}</td>
                         </tr>
                         <tr>
                             <th></th>
                             <th></th>
                             <th></th>
                             <th align="right">I.G.V. ({{$v->impuesto*100}}%)</th>
-                            <td align="right">S/. {{number_format($v->total*$v->impuesto,2)}}</td>
+                            <td align="right">S/. {{number_format(($v->total*$v->impuesto)/(1+$v->impuesto),2)}}</td>
                         </tr>
                         <tr>
                             <th></th>

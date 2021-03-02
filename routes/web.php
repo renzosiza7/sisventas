@@ -298,6 +298,7 @@ Route::group(['middleware'=>['auth']],function(){
          * Ventas
          */
         Route::get('/venta', 'VentaController@index');
+        Route::get('/venta/selectSerie', 'VentaController@getSerie');
         Route::get('/venta_caja', 'VentaController@getVentasCaja');
         Route::get('/venta_caja_cerrada', 'VentaController@getVentasCajaCerrada');
         Route::post('/venta/registrar', 'VentaController@store');

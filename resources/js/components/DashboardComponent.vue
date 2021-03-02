@@ -1,13 +1,11 @@
 <template>
-<main class="main">
-    <!-- Breadcrumb -->
+<main class="main">    
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="/">Escritorio</a></li>
     </ol>
     <div class="container-fluid">
         <div class="card">
-            <div class="card-header">
-                
+            <div class="card-header">                
             </div>
             <div class="car-body">
                 <div class="row">
@@ -59,8 +57,7 @@
                 charIngreso:null,
                 ingresos:[],
                 varTotalIngreso:[],
-                varMesIngreso:[], 
-                
+                varMesIngreso:[],                 
                 varVenta:null,
                 charVenta:null,
                 ventas:[],
@@ -68,49 +65,50 @@
                 varMesVenta:[],
             }
         },
+        created() {
+            this.getIngresos();
+            this.getVentas();
+        },
         methods : {
-            getIngresos(){
-                let me=this;
-                var url=this.ruta + '/dashboard';
-                axios.get(url).then(function (response) {
-                    var respuesta= response.data;
-                    me.ingresos = respuesta.ingresos;
-                    //cargamos los datos del chart
-                    me.loadIngresos();
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
+            getIngresos() {                                
+                axios.get(`${this.ruta}/dashboard`)
+                    .then(response => {
+                        let respuesta = response.data;
+                        this.ingresos = respuesta.ingresos;
+                        //cargamos los datos del chart
+                        this.loadIngresos();
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
             },
-            getVentas(){
-                let me=this;
-                var url=this.ruta + '/dashboard';
-                axios.get(url).then(function (response) {
-                    var respuesta= response.data;
-                    me.ventas = respuesta.ventas;
-                    //cargamos los datos del chart
-                    me.loadVentas();
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
+            getVentas() {                                
+                axios.get(`${this.ruta}/dashboard`)
+                    .then(response => {
+                        let respuesta = response.data;
+                        this.ventas = respuesta.ventas;
+                        //cargamos los datos del chart
+                        this.loadVentas();
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
             },
-            loadIngresos(){
-                let me=this;
+            loadIngresos(){                
                 let meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]; 
-                me.ingresos.map(function(x){
-                    me.varMesIngreso.push(meses[x.mes-1]);
-                    me.varTotalIngreso.push(x.total);
+                this.ingresos.map(x =>{
+                    this.varMesIngreso.push(meses[x.mes-1]);
+                    this.varTotalIngreso.push(x.total);
                 });
-                me.varIngreso=document.getElementById('ingresos').getContext('2d');
+                this.varIngreso=document.getElementById('ingresos').getContext('2d');
 
-                me.charIngreso = new Chart(me.varIngreso, {
+                this.charIngreso = new Chart(this.varIngreso, {
                     type: 'bar',
                     data: {
-                        labels: me.varMesIngreso,
+                        labels: this.varMesIngreso,
                         datasets: [{
                             label: 'Ingresos',
-                            data: me.varTotalIngreso,
+                            data: this.varTotalIngreso,
                             backgroundColor: 'rgba(255, 99, 132, 0.2)',
                             borderColor: 'rgba(255, 99, 132, 0.2)',
                             borderWidth: 1
@@ -127,22 +125,21 @@
                     }
                 });
             },
-            loadVentas(){
-                let me=this;
+            loadVentas() {                
                 let meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]; 
-                me.ventas.map(function(x){
-                    me.varMesVenta.push(meses[x.mes-1]);
-                    me.varTotalVenta.push(x.total);
+                this.ventas.map(x => {
+                    this.varMesVenta.push(meses[x.mes-1]);
+                    this.varTotalVenta.push(x.total);
                 });
-                me.varVenta=document.getElementById('ventas').getContext('2d');
+                this.varVenta=document.getElementById('ventas').getContext('2d');
 
-                me.charVenta = new Chart(me.varVenta, {
+                this.charVenta = new Chart(this.varVenta, {
                     type: 'bar',
                     data: {
-                        labels: me.varMesVenta,
+                        labels: this.varMesVenta,
                         datasets: [{
                             label: 'Ventas',
-                            data: me.varTotalVenta,
+                            data: this.varTotalVenta,
                             backgroundColor: 'rgba(54, 162, 235, 0.2)',
                             borderColor: 'rgba(54, 162, 235, 0.2)',
                             borderWidth: 1
@@ -159,10 +156,6 @@
                     }
                 });
             }
-        },
-        mounted() {
-            this.getIngresos();
-            this.getVentas();
-        }
+        },        
     }
 </script>

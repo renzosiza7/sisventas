@@ -166,42 +166,43 @@
                 return diferencia.toFixed(2)
             }
         },     
+        created() {
+            this.getDataCaja()            
+        },
         methods : {            
-            getDataCaja() {
-                let me = this;
-
+            getDataCaja() {               
                 axios.get(`${this.ruta}/caja/get_data`, {
                     params: {
                         'idcaja': this.idcaja
                     }
                 })
-                .then(function (response) {                                                        
-                    me.data_caja = response.data; 
+                .then(response => {                                                        
+                    this.data_caja = response.data; 
                     
-                    me.monto_inicial = me.data_caja.inicio_caja.monto_inicial
+                    this.monto_inicial = this.data_caja.inicio_caja.monto_inicial
                     
-                    if (me.data_caja.inicio_caja.estado == 'Abierto') {
-                        me.saldo_sistema = parseFloat(me.data_caja.inicio_caja.monto_inicial) +
-                                           parseFloat(me.data_caja.total_ventas) +
-                                           parseFloat(me.data_caja.total_servicios) + 
-                                           parseFloat(me.data_caja.total_mov_entrada) - 
-                                           parseFloat(me.data_caja.total_mov_salida) -
-                                           parseFloat(me.data_caja.total_gastos);                    
+                    if (this.data_caja.inicio_caja.estado == 'Abierto') {
+                        this.saldo_sistema = parseFloat(this.data_caja.inicio_caja.monto_inicial) +
+                                           parseFloat(this.data_caja.total_ventas) +
+                                           parseFloat(this.data_caja.total_servicios) + 
+                                           parseFloat(this.data_caja.total_mov_entrada) - 
+                                           parseFloat(this.data_caja.total_mov_salida) -
+                                           parseFloat(this.data_caja.total_gastos);                    
                     }
                     else {
-                        me.saldo_sistema_cerrada = me.data_caja.inicio_caja.saldo_sistema;
-                        me.saldo_caja_cerrada = me.data_caja.inicio_caja.saldo_caja;
-                        me.diferencia_cerrada = me.data_caja.inicio_caja.diferencia;
+                        this.saldo_sistema_cerrada = this.data_caja.inicio_caja.saldo_sistema;
+                        this.saldo_caja_cerrada = this.data_caja.inicio_caja.saldo_caja;
+                        this.diferencia_cerrada = this.data_caja.inicio_caja.diferencia;
                     }                    
                 })
-                .catch(function (error) {                    
+                .catch(error => {                    
                     console.log(error);
                 });
             },
             calcularTotal() {
-                var total = 0;
+                let total = 0;
 
-                for(var i = 0; i < this.valores.length; i++) {
+                for(let i = 0; i < this.valores.length; i++) {
                     total += this.cantidades[i] * this.valores[i];
                 }
 
@@ -218,9 +219,7 @@
                   confirmButtonText: 'Si',
                   cancelButtonText: 'No',
                }).then((result) => {
-                    if (result.value) {                 
-                        let me = this;                        
-
+                    if (result.value) {                                         
                         axios.put(`${this.ruta}/caja/cerrar/${this.idcaja}`, {                    
                             'total_ventas': this.data_caja.total_ventas,                    
                             'total_servicios': this.data_caja.total_servicios,                    
@@ -230,16 +229,16 @@
                             'saldo_sistema': this.saldo_sistema,                    
                             'saldo_caja': this.saldo_caja,                    
                             'diferencia': this.diferencia,                    
-                        }).then(function (response) {                               
+                        }).then(response => {                               
                             Swal.fire(
                               'Éxito!',
                               'Caja cerrada con éxito',
                               'success'
                            ).then((result) => {
-                              window.location.href = me.ruta + "/main";                                                            
+                              window.location.href = this.ruta + "/main";                                                            
                            })                           
                            
-                        }).catch(function (error) {
+                        }).catch(error => {
                             Swal.fire(
                                'Error!',
                                'No se pudo cerrar la caja, Intentelo más tarde',
@@ -250,10 +249,7 @@
                })   
             }
             
-        },
-        mounted() {
-            this.getDataCaja()            
-        }
+        },        
     }
 </script>
 <style scoped>

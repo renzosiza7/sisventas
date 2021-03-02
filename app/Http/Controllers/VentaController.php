@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\Venta;
 use App\Models\DetalleVenta;
+use App\Models\Facturador;
 use App\User;
 use App\Notifications\NotifyAdmin;
 use DB;
@@ -24,6 +25,15 @@ class VentaController extends Controller
         $venta = new Venta();        
 
         return $venta->getVentas();  
+    }
+
+    public function getSerie(Request $request)
+    {      
+        $tipo_comprobante = $request->tipo_comprobante;
+        
+        $venta = new Venta();  
+
+        return $venta->getSerie($tipo_comprobante);  
     }
 
     public function getVentasCaja(Request $request)
@@ -84,25 +94,24 @@ class VentaController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
-        if (!$request->ajax()) return redirect('/');
+    {           
+        if (!$request->ajax()) return redirect('/');        
 
         $this->validate($request, [
-            'idcliente' => 'required',
+            'cliente' => 'required',
             'tipo_comprobante' => 'required',
             'serie_comprobante' => 'nullable|max:7',
             'num_comprobante' => 'required|max:10',
             'impuesto' => 'required|numeric|between:0, 0.99',      
             'data' => 'array|min:1',      
         ],
-        [
-            'idcliente.required' => 'El campo cliente es obligatorio.',                        
+        [                                 
             'num_comprobante.required' => 'El campo nro. comprobante es obligatorio.',                        
             'serie_comprobante.max' => 'El campo serie comprobante no debe ser mayor a 7 digítos.',                        
             'num_comprobante.max' => 'El campo nro. comprobante no debe ser mayor a 10 digítos.',                        
             'impuesto.numeric' => 'El campo impuesto debe ser un número decimal.',
             'data.min' => 'Seleccione por lo menos un artículo para detalles de la venta.',            
-        ]);
+        ]);       
 
         try {
             DB::beginTransaction();
@@ -111,15 +120,15 @@ class VentaController extends Controller
 
             $venta = new Venta();
             
-            $venta->idcliente = $request->idcliente;
+            $venta->idcliente = $request->cliente['id'];
             $venta->idusuario = \Auth::user()->id;
             $venta->tipo_comprobante = $request->tipo_comprobante;
             $venta->serie_comprobante = $request->serie_comprobante;
             $venta->num_comprobante = $request->num_comprobante;
             $venta->fecha_hora = $mytime->format('Y-m-d H:i:s');
             $venta->impuesto = $request->impuesto;
-            $venta->total = $request->total;
-            $venta->estado = 'Emitido';
+            $venta->total = $request->total;   
+            $venta->estado = 'Emitido';         
             
             $venta->save();
 
@@ -137,7 +146,7 @@ class VentaController extends Controller
                 $detalle->descuento = $det['descuento'];          
                 
                 $detalle->save();
-            }
+            }          
 
             $fechaActual = date('Y-m-d');
 
@@ -159,16 +168,50 @@ class VentaController extends Controller
 
             foreach($allUsers as $notificar) {
                 User::findOrFail($notificar->id)->notify(new NotifyAdmin($arregloDatos));
-            }
+            }           
             
-            DB::commit();
-            return [
-                'id' => $venta->id
-            ];
+            $result_venta = ['successMessage' => 'Venta registrada satisfactoriamente.', 'error' => false];
 
-        } catch (Exception $e){
+            if ($request->tipo_comprobante == 'FACTURA') {
+                $cliente = $request->cliente;
+                
+                if ($cliente['tipo_documento'] == 'RUC') {
+                    //enviar factura a sunat
+                    $facturador = new Facturador();               
+                    $serie = $venta->serie_comprobante;
+                    $correlativo = $venta->num_comprobante;
+                    $fecha_venta = $mytime->format('Y-m-d');
+                    $hora_venta = $mytime->format('H:i:s');
+
+                    $result_sunat = $facturador->enviarSunat($cliente, $serie, $correlativo, $fecha_venta, $hora_venta, $detalles);              
+                                    
+                    if ($result_sunat['error']) {
+                        DB::table('ventas')
+                            ->where('id', $venta->id)
+                            ->update(['estado' => 'No emitido']);                    
+                    }              
+
+                    $resultado = ['id' => $venta->id, 'result_venta' => $result_venta, 'result_sunat' => $result_sunat];               
+                }
+                else {
+                    $result_venta = ['errorMessage' => 'El cliente seleccionado no tiene RUC', 'error' => true];                    
+                    $resultado = ['result_venta' => $result_venta];    
+                    
+                    return $resultado;
+                }                
+            }
+            else {                
+                $resultado = ['id' => $venta->id, 'result_venta' => $result_venta];
+            }
+            DB::commit();
+        } catch (\Exception $e){
             DB::rollBack();
+            $result_venta = ['errorMessage' => 'Se ha producido un error, vuelve a intentarlo más tarde', 'error' => true];
+            \Log::error('VentaController@store, Detalle: "'.$e->getMessage().'" on file '.$e->getFile().':'.$e->getLine());
+            $resultado = ['result_venta' => $result_venta];           
         }
+
+        return $resultado;
     }
 
     /**

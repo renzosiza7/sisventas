@@ -1,12 +1,10 @@
 <template>
-    <main class="main">
-        <!-- Breadcrumb -->
+    <main class="main">        
         <ol class="breadcrumb">            
             <li class="breadcrumb-item"><a href="/">Inicio</a></li>
             <li class="breadcrumb-item active">Ingresos</li>
         </ol>
-        <div class="container-fluid">
-            <!-- Ejemplo de tabla Listado -->
+        <div class="container-fluid">            
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Ingresos                    
@@ -35,18 +33,18 @@
                     </b-alert>
 
                     <b-row>
-                        <b-col md="4" class="my-1">
+                        <b-col sm="12" md="4" lg="4" class="my-1">
                             <b-form-group label-cols-sm="6" label="Registros por página: " class="mb-0">
                                 <b-form-select v-model="perPage" :options="pageOptions"></b-form-select>
                             </b-form-group>
                         </b-col>
-                        <b-col offset-md="4" md="4" class="my-1">
+                        <b-col sm="12" offset-md="3" md="5" lg="5" class="my-1">
                             <b-form-group label-cols-sm="3" label="Buscar: " class="mb-0">
                                 <b-input-group>
                                     <b-form-input v-model="filter" placeholder="Escriba el texto a buscar..."></b-form-input>
-                                    <!--<b-input-group-append>
-                                        <b-button :disabled="!filter" @click="filter = ''">Clear</b-button>
-                                    </b-input-group-append>-->
+                                    <b-input-group-append>
+                                        <b-button :disabled="!filter" @click="filter = ''">Limpiar</b-button>
+                                    </b-input-group-append>
                                 </b-input-group>
                             </b-form-group>
                         </b-col>                        
@@ -181,7 +179,7 @@
                     </div>
                 </div>
                 </template>
-            </div><!-- Fin ejemplo de tabla Listado -->
+            </div>
         </div>                      
     </main>
 </template>
@@ -199,7 +197,6 @@
                 cantidad : 0,           
                 criterioA:'nombre',
                 buscarA: '',     
-
                 ingreso : {
                     id : 0,
                     idproveedor : '', 
@@ -213,8 +210,7 @@
                     totalImpuesto: 0.0,
                     totalParcial: 0.0,
                 },
-                columnas: [                    
-                    { key: 'opciones', label: 'Opciones', class: 'text-center' },                    
+                columnas: [                                                            
                     { key : 'usuario', label : 'Usuario', sortable: true },                    
                     { key : 'proveedor', label : 'Proveedor' },                    
                     { key : 'tipo_comprobante', label : 'Tipo Comprobante', class: 'text-center' },         
@@ -223,6 +219,7 @@
                     { key : 'fecha_hora', label : 'Fecha Hora', class: 'text-center' },  
                     { key : 'total', label : 'Total', class: 'text-center' },                                 
                     { key : 'estado', label : 'Estado', class: 'text-center' },                    
+                    { key: 'opciones', label: 'Opciones', class: 'text-center' },
                 ], 
                 ingresos : [],                
                 arrayProveedor: [],
@@ -256,94 +253,84 @@
         },        
         computed : {
             calcularTotal: function(){
-                var resultado = 0.0;
+                let resultado = 0.0;
                 
-                for(var i=0; i < this.arrayDetalle.length; i++){
+                for(let i = 0; i < this.arrayDetalle.length; i++){
                     resultado = resultado+(this.arrayDetalle[i].precio*this.arrayDetalle[i].cantidad)
                 }
 
                 return resultado.toFixed(2);
             }
         },
+        created() {
+            this.listarIngreso();                          
+        },
         methods : {
-            listarIngreso() {
-                let me = this;
-
+            listarIngreso() {                
                 axios.get(`${this.ruta}/ingreso`)
-                .then(function (response) {                                    
-                    me.ingresos = response.data;
-                    me.totalRows = me.ingresos.length;
-                })
-                .catch(function (error) {                    
-                    console.log(error);
-                });
+                    .then(response => {                                    
+                        this.ingresos = response.data;
+                        this.totalRows = this.ingresos.length;
+                    })
+                    .catch(error => {                    
+                        console.log(error);
+                    });
             },                                                   
-            mostrarDetalle(){
-                let me = this;
-                me.listado = 0;
-
-                me.ingreso.idproveedor = '';
-                me.ingreso.tipo_comprobante = 'BOLETA';
-                me.ingreso.serie_comprobante = '';
-                me.ingreso.num_comprobante = '';
-                me.ingreso.impuesto = 0.18;
-                me.ingreso.total = 0.0;
-                me.idarticulo = 0;
-                me.articulo = '';
-                me.cantidad = 0;
-                me.precio = 0;
-                me.arrayDetalle = [];
-                me.errors = [];
+            mostrarDetalle() {                
+                this.listado = 0;
+                this.ingreso.idproveedor = '';
+                this.ingreso.tipo_comprobante = 'BOLETA';
+                this.ingreso.serie_comprobante = '';
+                this.ingreso.num_comprobante = '';
+                this.ingreso.impuesto = 0.18;
+                this.ingreso.total = 0.0;
+                this.idarticulo = 0;
+                this.articulo = '';
+                this.cantidad = 0;
+                this.precio = 0;
+                this.arrayDetalle = [];
+                this.errors = [];
             },
             ocultarDetalle(){
                 this.listado = 1;
             },
-            verIngreso(id) {
-                let me = this;
-                me.listado = 2;
+            verIngreso(id) {                
+                this.listado = 2;                                
+                let objIngresoT = {};                
                 
-                //Obtener los datos del ingreso
-                var objIngresoT = {};
-                var url = this.ruta + '/ingreso/obtenerCabecera?id=' + id;
-                
-                axios.get(url).then(function (response) {                    
-                    objIngresoT = response.data;
+                axios.get(`${this.ruta}/ingreso/obtenerCabecera?id=${id}`)
+                    .then(response => {                    
+                        objIngresoT = response.data;
 
-                    me.ingreso.proveedor = objIngresoT.nombre;
-                    me.ingreso.fecha_hora = objIngresoT.fecha_hora;
-                    me.ingreso.tipo_comprobante = objIngresoT.tipo_comprobante;
-                    me.ingreso.serie_comprobante = objIngresoT.serie_comprobante;
-                    me.ingreso.num_comprobante = objIngresoT.num_comprobante;
-                    me.ingreso.impuesto = objIngresoT.impuesto;
-                    me.ingreso.total = objIngresoT.total;                    
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
+                        this.ingreso.proveedor = objIngresoT.nombre;
+                        this.ingreso.fecha_hora = objIngresoT.fecha_hora;
+                        this.ingreso.tipo_comprobante = objIngresoT.tipo_comprobante;
+                        this.ingreso.serie_comprobante = objIngresoT.serie_comprobante;
+                        this.ingreso.num_comprobante = objIngresoT.num_comprobante;
+                        this.ingreso.impuesto = objIngresoT.impuesto;
+                        this.ingreso.total = objIngresoT.total;                    
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
 
-                //Obtener los datos de los detalles 
-                var urld= this.ruta + '/ingreso/obtenerDetalles?id=' + id;
-                
-                axios.get(urld).then(function (response) {
-                    //console.log(response);                    
-                    me.arrayDetalle = response.data;
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });               
+                //Obtener los datos de los detalles                 
+                axios.get(`${this.ruta}/ingreso/obtenerDetalles?id=${id}`)
+                    .then(response => {                              
+                        this.arrayDetalle = response.data;
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });               
             },                           
-            onFiltered(filteredItems) {
-                // Trigger pagination to update the number of buttons/pages due to filtering
+            onFiltered(filteredItems) {                
                 this.totalRows = filteredItems.length;
                 this.currentPage = 1;
             },
             countDownChanged(dismissCountDown) {
                 this.dismissCountDown = dismissCountDown;
             },
-        },
-        mounted() {
-            this.listarIngreso();                          
-        }
+        },       
     }
 </script>
 <style scoped>
