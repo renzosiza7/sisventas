@@ -13,10 +13,23 @@ class CategoriaController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
-    {
+    {         
         if (!$request->ajax()) return redirect('/');
 
-        return Categoria::all();
+        $query = Categoria::where('nombre', 'like', '%' . $request->filter . '%')
+                            ->orWhere('descripcion', 'like', '%' . $request->filter . '%');                                
+
+        $sortby = $request->sortby;
+
+        if ($sortby && !empty($sortby)) {                        
+            $sortdirection = $request->sortdesc == "true" ? 'desc' : 'asc';
+            $query = $query->orderBy($sortby, $sortdirection);
+        }
+        else {
+            $query = $query->latest();
+        }        
+
+        return $query->paginate($request->size);
     }
 
     public function getCategoriasActivas(Request $request) 
@@ -49,7 +62,7 @@ class CategoriaController extends Controller
         if (!$request->ajax()) return redirect('/');
         
         $this->validate($request, [
-            'nombre' => 'required|max:50',            
+            'nombre' => 'required|unique:categorias|max:50',            
             'descripcion' => 'nullable|max:150'
         ]);                
 
@@ -98,7 +111,7 @@ class CategoriaController extends Controller
         if (!$request->ajax()) return redirect('/');        
         
         $this->validate($request, [
-            'nombre' => 'required|max:50',            
+            'nombre' => 'required|max:50|unique:categorias,nombre,' . $id,
             'descripcion' => 'nullable|max:150'
         ]);        
         

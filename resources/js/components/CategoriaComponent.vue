@@ -58,13 +58,14 @@
                         </b-col>                        
                     </b-row>
                     <b-table 
+                        ref="tbl_categorias"
                         striped 
                         hover 
                         bordered 
                         small
-                        responsive
-                        :fields="columnas" 
-                        :items="categorias"    
+                        responsive                      
+                        :fields="columnas"                         
+                        :items="myProvider"  
                         :current-page="currentPage"
                         :per-page="perPage"
                         :filter="filter"
@@ -186,7 +187,7 @@
                     { key : 'condicion', label : 'Condición', class: 'text-center' },                    
                     { key: 'opciones', label: 'Opciones', class: 'text-center' },
                 ], 
-                categorias : [],                
+                //categorias : [],                
                 tituloModalNuevoEditar : '',
                 tituloModalEliminar : '',
                 modalNuevoEditar : false,
@@ -210,21 +211,31 @@
                 dismissCountDown: 0,
                 errors : []                             
             }
-        },
-        created() {
-            this.listarCategoria();            
         },        
-        methods : {            
-            listarCategoria() {              
-                axios.get(`${this.ruta}/categoria`)
-                .then(response => {                                                        
-                    this.categorias = response.data;                    
-                    this.totalRows = this.categorias.length;
+        methods : {    
+            refreshTable() {
+                this.$refs.tbl_categorias.refresh();
+            },     
+            myProvider(ctx) {                
+                let params = "?page=" + ctx.currentPage + "&size=" + ctx.perPage;
+
+                if (ctx.filter !== "" && ctx.filter !== null) {                    
+                    params += "&filter=" + ctx.filter;
+                }
+
+                if (ctx.sortBy !== "" && ctx.sortBy !== null) {
+                    params += "&sortby=" + ctx.sortBy + "&sortdesc=" + ctx.sortDesc;
+                }
+
+                const promise = axios.get(`${this.ruta}/categoria${params}`)
+                
+                return promise.then(response => {                                        
+                    const categorias = response.data.data                                   
+                    this.totalRows = response.data.total;
+
+                    return categorias || []
                 })
-                .catch(error => {                    
-                    console.log(error);
-                });
-            },
+            },               
             abrirModalNuevoEditar(accion, data=[]) {                
                 this.modalNuevoEditar = true;
 
@@ -249,15 +260,7 @@
                         break;
                     }
                 }
-            },
-            /*guardarCategoria() {
-                if (this.tipoAccion == 1) {                    
-                    this.registrarCategoria()
-                }
-                else {
-                    this.actualizarCategoria()
-                }
-            },*/
+            },            
             registrarCategoria() {                
                 this.errors = [];                           
                 
@@ -267,14 +270,13 @@
                     'acceso': this.categoria.acceso
                 }).then(response => {
                     this.cerrarModalNuevoEditar();                    
-                    this.listarCategoria();
+                    this.refreshTable();                    
                     this.successMsg = true;
                     this.txtSuccessMsg = 'La categoría fue agregada satisfactoriamente.';
                     this.dismissCountDown = this.dismissSecs;                                        
                 }).catch(error => {                    
                     if (error.response.status==422) {
-                        this.errors = error.response.data.errors;
-                        console.log('jeiken')
+                        this.errors = error.response.data.errors;                        
                     }
                     else {
                         this.cerrarModalNuevoEditar()
@@ -292,8 +294,8 @@
                     'descripcion': this.categoria.descripcion,
                     'acceso': this.categoria.acceso
                 }).then(response => {
-                    this.cerrarModalNuevoEditar();                    
-                    this.listarCategoria();
+                    this.cerrarModalNuevoEditar();  
+                    this.refreshTable();                                      
                     this.successMsg = true;
                     this.txtSuccessMsg = 'La categoría fue actualizada satisfactoriamente.';
                     this.dismissCountDown = this.dismissSecs;
@@ -346,7 +348,7 @@
                 axios.put(`${this.ruta}/categoria/activar/${this.categoria.id}`)
                 .then(response => {
                     this.cerrarModalEliminar();                    
-                    this.listarCategoria();
+                    this.refreshTable();                    
                     this.successMsg = true;
                     this.txtSuccessMsg = 'La categoría fue activada satisfactoriamente.';
                     this.dismissCountDown = this.dismissSecs;
@@ -360,8 +362,8 @@
             desactivarCategoria() {              
                 axios.put(`${this.ruta}/categoria/desactivar/${this.categoria.id}`)
                 .then(response => {
-                    this.cerrarModalEliminar();                    
-                    this.listarCategoria();
+                    this.cerrarModalEliminar();                                        
+                    this.refreshTable();
                     this.successMsg = true;
                     this.txtSuccessMsg = 'La categoría fue desactivada satisfactoriamente.';
                     this.dismissCountDown = this.dismissSecs;

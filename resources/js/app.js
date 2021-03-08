@@ -65,10 +65,9 @@ Vue.component('notification-component', require('./components/Notification.vue')
 const app = new Vue({
     el: '#app',
     data: {
-        menu: 'inicio',
-        //ruta: '//127.0.0.1:8001',
-        //ruta: '//localhost:3000',        
-        ruta: 'http://www.grupocarden.com/sisventas/public',        
+        menu: 'inicio',       
+        //ruta: process.env.MIX_APP_URL,
+        ruta: '//localhost:3000',
         renderKey: 1,
         notifications : []
     },
