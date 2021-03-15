@@ -66,8 +66,7 @@ const app = new Vue({
     el: '#app',
     data: {
         menu: 'inicio',       
-        //ruta: process.env.MIX_APP_URL,
-        ruta: '//localhost:3000',
+        ruta: process.env.MIX_APP_URL,        
         renderKey: 1,
         notifications : []
     },

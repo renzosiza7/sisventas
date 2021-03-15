@@ -203,7 +203,38 @@
                 dismissCountDown: 0,
                 errors : []                             
             }
-        },        
+        },     
+        watch: {
+            'cliente.num_documento': function (val) {
+                
+                if (this.cliente.tipo_documento == 'DNI' && val.length == 8) {                    
+                    axios.get(`${this.ruta}/api_dni/${val}`)
+                        .then(response => {            
+                            if (response.data) {                                
+                                let nombres = response.data.nombres
+                                let apPaterno = response.data.apellidoPaterno
+                                let apMaterno = response.data.apellidoMaterno
+                                this.cliente.nombre = `${nombres} ${apPaterno} ${apMaterno}` 
+                            }                                                                                 
+                        })
+                        .catch(error => {                    
+                            console.log(error);
+                        });
+                }
+                if (this.cliente.tipo_documento == 'RUC' && val.length == 11) {            
+                    axios.get(`${this.ruta}/api_ruc/${val}`)
+                        .then(response => {            
+                            if (response.data) {                                                                                                         
+                                this.cliente.nombre = response.data.razonSocial
+                                this.cliente.direccion = response.data.direccion
+                            }                                                                                 
+                        })
+                        .catch(error => {                    
+                            console.log(error);
+                        });
+                }
+            }
+        },
         created() {
             this.listarCliente();            
         },

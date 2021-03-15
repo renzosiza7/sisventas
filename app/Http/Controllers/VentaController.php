@@ -189,7 +189,12 @@ class VentaController extends Controller
                         DB::table('ventas')
                             ->where('id', $venta->id)
                             ->update(['estado' => 'No emitido']);                    
-                    }              
+                    }  
+                    
+                    $nuevo_correlativo = intval($correlativo) + 1;                         
+                    DB::table('serie')
+                        ->where('serie', $serie)
+                        ->update(['correlativo' => $nuevo_correlativo]);                                                   
 
                     $resultado = ['id' => $venta->id, 'result_venta' => $result_venta, 'result_sunat' => $result_sunat];               
                 }

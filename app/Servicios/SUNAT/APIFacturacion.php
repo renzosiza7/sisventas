@@ -38,7 +38,8 @@ class APIFacturacion extends Model
 
         //Enviamos el archivo a sunat
 
-        $ws = "https://e-beta.sunat.gob.pe/ol-ti-itcpfegem-beta/billService";
+        //$ws = "https://e-beta.sunat.gob.pe/ol-ti-itcpfegem-beta/billService"; //prueba
+        $ws = "https://e-factura.sunat.gob.pe/ol-ti-itcpfegem/billService"; //produccion
 
         $ruta_archivo = $rutazip;
         $nombre_archivo = $nombrezip;
@@ -119,7 +120,7 @@ class APIFacturacion extends Model
                         $result = ['errorMessage' => $errorMessageSunat, 'error' => true];
                     }		
 
-            }else{ //hay problemas comunicacion
+            } else { //hay problemas comunicacion
                     $estadofe = "3";
                     $errorMessageSunat = 'Problema de conexión a SUNAT: ' . curl_error($ch);
                     \Log::error('Error APIFacturacion, Detalle: ' . $errorMessageSunat);

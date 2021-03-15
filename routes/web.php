@@ -27,6 +27,14 @@ Route::group(['middleware'=>['guest']],function(){
 
 Route::group(['middleware'=>['auth']],function(){
 
+    Route::get('/api_dni/{dni}', function ($dni) {                
+        return file_get_contents("https://dniruc.apisperu.com/api/v1/dni/$dni?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InJlbnpvc2l6YTdAZ21haWwuY29tIn0.elNsQArKoBukAQJrNhDF_6ChvXhd9z-t7uiQQdR1zc0");
+    });
+
+    Route::get('/api_ruc/{ruc}', function ($ruc) {                
+        return file_get_contents("https://dniruc.apisperu.com/api/v1/ruc/$ruc?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InJlbnpvc2l6YTdAZ21haWwuY29tIn0.elNsQArKoBukAQJrNhDF_6ChvXhd9z-t7uiQQdR1zc0");
+    });
+
     Route::get('/dashboard', 'DashboardController');
     Route::post('/notification/get', 'NotificationController@get');
 
@@ -118,6 +126,7 @@ Route::group(['middleware'=>['auth']],function(){
          * Ventas
          */
         Route::get('/venta', 'VentaController@index');
+        Route::get('/venta/selectSerie', 'VentaController@getSerie');
         Route::get('/venta_caja', 'VentaController@getVentasCaja');
         Route::get('/venta_caja_cerrada', 'VentaController@getVentasCajaCerrada');
         Route::post('/venta/registrar', 'VentaController@store');
@@ -164,6 +173,7 @@ Route::group(['middleware'=>['auth']],function(){
          * Ventas
          */
         Route::get('/venta', 'VentaController@index');
+        Route::get('/venta/selectSerie', 'VentaController@getSerie');
         Route::get('/venta_caja', 'VentaController@getVentasCaja');
         Route::get('/venta_caja_cerrada', 'VentaController@getVentasCajaCerrada');
         Route::post('/venta/registrar', 'VentaController@store');

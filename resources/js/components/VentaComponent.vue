@@ -520,7 +520,7 @@
                     .then(response => {
                         if (response.data != null) {
                             this.venta.serie_comprobante = response.data.serie
-                            this.venta.num_comprobante = response.data.correlativo
+                            this.venta.num_comprobante = this.padDigits(response.data.correlativo, 7)
                         }                   
                         else {
                             this.venta.serie_comprobante = ''
@@ -874,6 +874,9 @@
             countDownChanged(dismissCountDown) {
                 this.dismissCountDown = dismissCountDown;
             },
+            padDigits(number, digits) {
+                return Array(Math.max(digits - String(number).length + 1, 0)).join(0) + number;
+            }
         },        
     }
 </script>
