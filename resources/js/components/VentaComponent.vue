@@ -113,7 +113,7 @@
                 <template v-else-if="listado==0">
                 <div class="card-body">
                     <div class="form-group row border">
-                        <div class="col-md-9">
+                        <div class="col-md-7">
                             <div class="form-group">
                                 <label for="">Cliente (*)</label>
                                 <v-select
@@ -129,8 +129,13 @@
                                     <template slot="no-options">
                                         Lo sentimos, no hay resultados de coincidencia.
                                     </template>
-                                </v-select>
+                                </v-select>                                
                                 <span v-if="errors.cliente" class="error">{{ errors.cliente[0] }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <button class="btn btn-outline-primary form-control btnagregar" v-b-modal.add-cliente><i class="icon-plus"></i> Nuevo cliente</button>
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -429,7 +434,61 @@
             </div>
             <!-- /.modal-dialog -->
         </div>
-        <!--Fin del modal-->         
+        <!--Fin del modal-->    
+
+        <b-modal id="add-cliente" ref="modal" title="Crear un nuevo Rol" @cancel="resetearCliente" @ok="registrarCliente">
+            <template v-slot:modal-footer="{ ok, cancel }">
+                <b-button size="sm" variant="danger" @click="cancel()"
+                >Cancelar</b-button
+                >
+                <b-button size="sm" variant="primary" @click="ok()">Registrar</b-button>
+            </template>
+            <form>
+                <div class="form-row">
+                    <div class="form-group col-md-5">
+                        <label for="tipo_documento">Tipo Documento</label>                                    
+                        <select v-model="cliente.tipo_documento" class="form-control" id="tipo_documento">
+                            <option value="" disabled>Seleccione...</option>
+                            <option value="DNI">DNI</option>
+                            <option value="RUC">RUC</option>                                        
+                            <option value="PASAPORTE">PASAPORTE</option>
+                        </select>    
+                        <span v-if="errors.tipo_documento" class="error">{{ errors.tipo_documento[0] }}</span>
+                    </div>
+                    <div class="form-group col-md-7">
+                        <label for="num_documento">Número Documento</label>                                    
+                        <input type="text" v-model="cliente.num_documento" class="form-control text-center" id="num_documento" placeholder="Nro. Documento">
+                        <span v-if="errors.num_documento" class="error">{{ errors.num_documento[0] }}</span>                                    
+                    </div>
+                </div>
+                <div class="form-row">                                
+                    <div class="form-group col-md-12">
+                        <label for="nombre">Nombre ó razón social</label>
+                        <input type="text" v-model="cliente.nombre" class="form-control" id="nombre" placeholder="Nombre del cliente">
+                        <span v-if="errors.nombre" class="error">{{ errors.nombre[0] }}</span>
+                    </div>
+                </div>                              
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <label for="direccion">Dirección</label>
+                        <input type="text" v-model="cliente.direccion" class="form-control" id="direccion" placeholder="Domicilio del cliente">            
+                        <span v-if="errors.direccion" class="error">{{ errors.direccion[0] }}</span>
+                    </div>                
+                </div>  
+                <div class="form-row">
+                    <div class="form-group col-md-5">
+                        <label for="telefono">Teléfono</label>
+                        <input type="text" v-model="cliente.telefono" class="form-control text-center" id="telefono">
+                        <span v-if="errors.telefono" class="error">{{ errors.telefono[0] }}</span>
+                    </div>                                
+                    <div class="form-group col-md-7">
+                        <label for="email">E-mail</label>
+                        <input type="text" v-model="cliente.email" class="form-control text-center" id="email">
+                        <span v-if="errors.email" class="error">{{ errors.email[0] }}</span>
+                    </div>
+                </div>                                                          
+            </form>
+        </b-modal>     
     </main>
 </template>
 <script>
@@ -496,7 +555,16 @@
                 filter: null,      
                 dismissSecs: 3,
                 dismissCountDown: 0,
-                errors : []                             
+                errors : [],
+                cliente : {
+                    id : 0,
+                    nombre : '',                    
+                    tipo_documento : '',
+                    num_documento : '',                    
+                    direccion : '',
+                    telefono : '',
+                    email : '',
+                },                          
             }
         },        
         computed : {
@@ -530,6 +598,37 @@
                     .catch(error => {
                         console.log(error);
                     });
+            },
+            'cliente.num_documento': function (val) {
+                this.errors = [];
+                this.cliente.nombre = ''
+                
+                if (this.cliente.tipo_documento == 'DNI' && val.length == 8) {                    
+                    axios.get(`${this.ruta}/api_dni/${val}`)
+                        .then(response => {            
+                            if (response.data) {                                
+                                let nombres = response.data.nombres
+                                let apPaterno = response.data.apellidoPaterno
+                                let apMaterno = response.data.apellidoMaterno
+                                this.cliente.nombre = `${nombres} ${apPaterno} ${apMaterno}` 
+                            }                                                                                 
+                        })
+                        .catch(error => {                    
+                            console.log(error);
+                        });
+                }
+                if (this.cliente.tipo_documento == 'RUC' && val.length == 11) {            
+                    axios.get(`${this.ruta}/api_ruc/${val}`)
+                        .then(response => {            
+                            if (response.data) {                                                                                                         
+                                this.cliente.nombre = response.data.razonSocial
+                                this.cliente.direccion = response.data.direccion
+                            }                                                                                 
+                        })
+                        .catch(error => {                    
+                            console.log(error);
+                        });
+                }
             }            
         },
         created() {
@@ -557,7 +656,34 @@
                 .catch(function (error) {
                     console.log(error);
                 });
-            },                
+            },  
+            registrarCliente(bvModalEvt) {           
+                bvModalEvt.preventDefault()             
+                this.errors = [];
+
+                axios.post(`${this.ruta}/cliente/registrar`, {
+                    'nombre': this.cliente.nombre,          
+                    'tipo_documento': this.cliente.tipo_documento,          
+                    'num_documento': this.cliente.num_documento,                              
+                    'direccion': this.cliente.direccion,          
+                    'telefono': this.cliente.telefono,          
+                    'email': this.cliente.email,                    
+                }).then(response => {                                                  
+                    this.resetearCliente()    
+                    this.$nextTick(() => {
+                        this.$bvModal.hide("add-cliente");
+                    });
+                    this.$bvToast.toast('Cliente registrado con éxito', {
+                        title: `Registrar cliente`,
+                        variant: 'success',
+                        solid: true
+                    })  
+                }).catch(error => {                    
+                    if (error.response.status==422) {
+                        this.errors = error.response.data.errors;                      
+                    }                    
+                });                
+            },              
             buscarArticulo() {                
                 axios.get(`${this.ruta}/articulo/buscarArticuloVenta?filtro=${this.codigo}`)
                     .then(response => {                    
@@ -858,6 +984,15 @@
                 this.arrayDetalle = [];
                 this.errors = [];
             },
+            resetearCliente(){                
+                this.cliente.nombre = '';
+                this.cliente.tipo_documento = '';
+                this.cliente.num_documento = '';
+                this.cliente.direccion = '';
+                this.cliente.telefono = '';                
+                this.cliente.email = '';             
+                this.errors = []                   
+            }, 
             cargarPdf(){
                 window.open(this.ruta + '/venta/listarPdf','_blank');
             },                   

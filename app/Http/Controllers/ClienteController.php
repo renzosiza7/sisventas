@@ -52,7 +52,7 @@ class ClienteController extends Controller
 
         if ($request->tipo_documento != 'RUC') {
             $this->validate($request, [            
-                'nombre' => 'required|max:100',            
+                'nombre' => 'required|max:100|unique:personas',            
                 'tipo_documento' => 'required|max:20',
                 'num_documento' => 'required|max:20',
                 'direccion' => 'nullable|max:70',
@@ -65,7 +65,7 @@ class ClienteController extends Controller
         }
         else {
             $this->validate($request, [            
-                'nombre' => 'required|max:100',            
+                'nombre' => 'required|max:100|unique:personas',            
                 'tipo_documento' => 'required|max:20',
                 'num_documento' => 'required|max:20',
                 'direccion' => 'required|max:70',
