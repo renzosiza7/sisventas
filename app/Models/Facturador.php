@@ -59,13 +59,13 @@ class Facturador extends Model
             $detalle[$indice]['codigo'] = $detalle_venta['idarticulo'];            
             $detalle[$indice]['descripcion'] = $detalle_venta['articulo'];
             $detalle[$indice]['cantidad'] = $detalle_venta['cantidad'];
-            $detalle[$indice]['valor_unitario'] = number_format($valor_unitario, 2);
-            $detalle[$indice]['precio_unitario'] = number_format($detalle_venta['precio'], 2);
+            $detalle[$indice]['valor_unitario'] = number_format($valor_unitario, 2, '.', '');
+            $detalle[$indice]['precio_unitario'] = number_format($detalle_venta['precio'], 2, '.', '');
             $detalle[$indice]['tipo_precio'] = "01"; //ya incluye igv
-            $detalle[$indice]['igv'] = number_format(($detalle_venta['precio'] - $valor_unitario) * $detalle_venta['cantidad'], 2);
+            $detalle[$indice]['igv'] = number_format(($detalle_venta['precio'] - $valor_unitario) * $detalle_venta['cantidad'], 2, '.', '');
             $detalle[$indice]['porcentaje_igv'] = 18; //de 0 a 100
-            $detalle[$indice]['valor_total'] = number_format($detalle_venta['cantidad'] * $valor_unitario, 2);
-            $detalle[$indice]['importe_total'] = number_format($detalle_venta['cantidad'] * $detalle_venta['precio'], 2);
+            $detalle[$indice]['valor_total'] = number_format($detalle_venta['cantidad'] * $valor_unitario, 2, '.', '');
+            $detalle[$indice]['importe_total'] = number_format($detalle_venta['cantidad'] * $detalle_venta['precio'], 2, '.', '');
             $detalle[$indice]['unidad'] = 'NIU'; //unidad,
             $detalle[$indice]['codigo_afectacion_alt'] = '10'; // Catálogo No. 07 - Anexo V
             $detalle[$indice]['codigo_afectacion'] = 1000;
@@ -160,7 +160,8 @@ class Facturador extends Model
         $comprobante['igv'] = $igv;
         $comprobante['total'] = $total;        
         $numero_letra = new NumeroLetra();              
-        $comprobante['total_texto'] = $numero_letra->ValorEnLetras($total);
+        //$comprobante['total_texto'] = $numero_letra->ValorEnLetras($total);
+        $comprobante['total_texto'] = '';
 
         $documento_xml = new DocumentoXML();
 
