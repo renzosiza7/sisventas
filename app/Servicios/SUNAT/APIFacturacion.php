@@ -16,7 +16,7 @@ class APIFacturacion extends Model
         $ruta = $ruta_archivo_xml.$nombre.'.XML';
 
         $ruta_firma = $rutacertificado."/grupocarden.pfx";
-        $pass_firma = "rafael2021";
+        $pass_firma = "Rafael2021";
 
         $resp = $objSignature->signature_xml($flg_firma, $ruta, $ruta_firma, $pass_firma);
 

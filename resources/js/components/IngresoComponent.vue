@@ -104,9 +104,9 @@
                 <template v-else-if="listado==0">
                 <div class="card-body">
                     <div class="form-group row border">
-                        <div class="col-md-9">
+                        <div class="col-md-6">
                             <div class="form-group">
-                                <label for="">Proveedor (*)</label>
+                                <label for="">Proveedor <span class="text-danger">*</span></label>
                                 <v-select
                                     v-model="ingreso.idproveedor"
                                     @search="selectProveedor"
@@ -121,44 +121,50 @@
                                         Lo sentimos, no hay resultados de coincidencia.
                                     </template>
                                 </v-select>
-                                <span v-if="errors.idproveedor" class="error">{{ errors.idproveedor[0] }}</span>
+                                <span v-if="errors.idproveedor" class="text-danger">{{ errors.idproveedor[0] }}</span>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <label for="">I.G.V.(*)</label>
+                        <div class="col-md-1">
+                            <div class="form-group">
+                                <label for="">&nbsp;</label>
+                                <b-button size="sm" variant="light" class="form-control" v-b-modal.add-proveedor><i class="fa fa-plus"></i></b-button>
+                            </div>
+                        </div>
+                        <div class="offset-md-2 col-md-3">
+                            <label for="">I.G.V.<span class="text-danger">*</span></label>
                             <input type="text" class="form-control" v-model="ingreso.impuesto">
-                            <span v-if="errors.impuesto" class="error">{{ errors.impuesto[0] }}</span>
+                            <span v-if="errors.impuesto" class="text-danger">{{ errors.impuesto[0] }}</span>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label>Tipo Comprobante (*)</label>
+                                <label>Tipo Comprobante <span class="text-danger">*</span></label>
                                 <select class="form-control" v-model="ingreso.tipo_comprobante">
                                     <option value="">Seleccione...</option>
                                     <option value="BOLETA">Boleta</option>
                                     <option value="FACTURA">Factura</option>                                    
                                 </select>
-                                <span v-if="errors.tipo_comprobante" class="error">{{ errors.tipo_comprobante[0] }}</span>
+                                <span v-if="errors.tipo_comprobante" class="text-danger">{{ errors.tipo_comprobante[0] }}</span>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label>Serie Comprobante</label>
                                 <input type="text" class="form-control" v-model="ingreso.serie_comprobante" placeholder="000x">
-                                <span v-if="errors.serie_comprobante" class="error">{{ errors.serie_comprobante[0] }}</span>
+                                <span v-if="errors.serie_comprobante" class="text-danger">{{ errors.serie_comprobante[0] }}</span>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label>Número Comprobante (*)</label>
+                                <label>Número Comprobante <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" v-model="ingreso.num_comprobante" placeholder="000xx">
-                                <span v-if="errors.num_comprobante" class="error">{{ errors.num_comprobante[0] }}</span>
+                                <span v-if="errors.num_comprobante" class="text-danger">{{ errors.num_comprobante[0] }}</span>
                             </div>
                         </div>                        
                     </div>
                     <div class="form-group row border">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Artículo <span style="color:red;" v-show="idarticulo==0">(*Seleccione)</span></label>
+                                <label>Artículo <span style="color:red;" v-show="idarticulo==0"><span class="text-danger">*</span></span></label>
                                 <div class="form-inline">
                                     <input type="text" class="form-control" v-model="codigo" @keyup.enter="buscarArticulo()" placeholder="Ingrese artículo">
                                     <button @click="abrirModal()" class="btn btn-primary">...</button>
@@ -168,13 +174,13 @@
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
-                                <label>Precio <span style="color:red;" v-show="precio==0">(*Ingrese)</span></label>
+                                <label>Precio <span style="color:red;" v-show="precio==0"><span class="text-danger">*</span></span></label>
                                 <input type="number" value="0" step="any" class="form-control" v-model="precio">
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
-                                <label>Cantidad <span style="color:red;" v-show="cantidad==0">(*Ingrese)</span></label>
+                                <label>Cantidad <span style="color:red;" v-show="cantidad==0"><span class="text-danger">*</span></span></label>
                                 <input type="number" value="0" class="form-control" v-model="cantidad">
                             </div>
                         </div>
@@ -236,7 +242,7 @@
                                     </tr>
                                 </tbody>                                    
                             </table>
-                            <span v-if="errors.data" class="error">{{ errors.data[0] }}</span>
+                            <span v-if="errors.data" class="text-danger">{{ errors.data[0] }}</span>
                         </div>
                     </div>
                     <div class="form-group row">
@@ -341,70 +347,114 @@
             </div><!-- Fin ejemplo de tabla Listado -->
         </div>       
 
-        <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade" tabindex="-1" :class="{'mostrar' : modal}" role="dialog" aria-labelledby="myModalLabel" style="display: none;" aria-hidden="true">
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title" v-text="tituloModal"></h4>
-                        <button type="button" class="close" @click="cerrarModal()" aria-label="Close">
-                            <span aria-hidden="true">×</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group row">
-                            <div class="col-md-8">
-                                <div class="input-group">
-                                    <select class="form-control col-md-4" v-model="criterioA">
-                                        <option value="nombre">Nombre</option>                                        
-                                        <option value="codigo">Código</option>
-                                        <option value="descripcion">Descripción</option>
-                                    </select>
-                                    <input type="text" v-model="buscarA" @keyup.enter="listarArticulo(buscarA,criterioA)" class="form-control" placeholder="Texto a buscar">
-                                    <button type="submit" @click="listarArticulo(buscarA,criterioA)" class="btn btn-primary"><i class="fa fa-search"></i> Buscar</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-striped table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>Acción</th>
-                                        <th>Código</th>
-                                        <th>Nombre</th>
-                                        <th>Categoría</th>
-                                        <th>Marca</th>
-                                        <th>Precio Venta</th>
-                                        <th>Stock</th>                                            
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="articulo in arrayArticulo" :key="articulo.id">
-                                        <td class="text-center">
-                                            <button type="button" @click="agregarDetalleModal(articulo)" class="btn btn-success btn-sm">
-                                            <i class="icon-check"></i>
-                                            </button>
-                                        </td>
-                                        <td v-text="articulo.codigo"></td>
-                                        <td v-text="articulo.nombre"></td>
-                                        <td v-text="articulo.categoria"></td>
-                                        <td v-text="articulo.marca"></td>
-                                        <td class="text-center" v-text="articulo.precio_venta"></td>
-                                        <td class="text-center" v-text="articulo.stock"></td>                                            
-                                    </tr>                                
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" @click="cerrarModal()">Cerrar</button>                            
+        <b-modal id="buscar-producto" size="lg" ref="modal" :title="tituloModal" @cancel="cerrarModal">                                   
+            <div class="form-group row">
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <select class="form-control col-md-4" v-model="criterioA">
+                            <option value="nombre">Nombre</option>                                        
+                            <option value="codigo">Código</option>
+                            <option value="descripcion">Descripción</option>
+                        </select>
+                        <input type="text" v-model="buscarA" @keyup.enter="listarArticulo(buscarA,criterioA)" class="form-control" placeholder="Texto a buscar">
+                        <button type="submit" @click="listarArticulo(buscarA,criterioA)" class="btn btn-primary"><i class="fa fa-search"></i> Buscar</button>
                     </div>
                 </div>
-                <!-- /.modal-content -->
             </div>
-            <!-- /.modal-dialog -->
-        </div>
-        <!--Fin del modal-->         
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-sm">
+                    <thead>
+                        <tr>
+                            <th>Acción</th>
+                            <th>Código</th>
+                            <th>Nombre</th>
+                            <th>Categoría</th>
+                            <th>Marca</th>
+                            <th>Precio Venta</th>
+                            <th>Stock</th>                                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="articulo in arrayArticulo" :key="articulo.id">
+                            <td class="text-center">
+                                <button type="button" @click="agregarDetalleModal(articulo)" class="btn btn-success btn-sm">
+                                <i class="icon-check"></i>
+                                </button>
+                            </td>
+                            <td v-text="articulo.codigo"></td>
+                            <td v-text="articulo.nombre"></td>
+                            <td v-text="articulo.categoria"></td>
+                            <td v-text="articulo.marca"></td>
+                            <td class="text-center" v-text="articulo.precio_venta"></td>
+                            <td class="text-center" v-text="articulo.stock"></td>                                            
+                        </tr>                                
+                    </tbody>
+                </table>
+            </div>
+            <template v-slot:modal-footer="{ cancel }">
+                <b-button variant="secondary" @click="cancel()">Cerrar</b-button>                
+            </template>                    
+        </b-modal>   
+
+        <b-modal id="add-proveedor" ref="modal" title="Registrar proveedor" @cancel="resetearProveedor" @ok="registrarProveedor">
+            <template v-slot:modal-footer="{ ok, cancel }">
+                <b-button size="sm" variant="danger" @click="cancel()">Cancelar</b-button>
+                <b-button size="sm" variant="primary" @click="ok()">Registrar</b-button>
+            </template>            
+            <div class="form-row">                                
+                <div class="form-group col-md-12">
+                    <label for="nombre">Nombre</label>
+                    <input type="text" v-model="proveedor.nombre" class="form-control" id="nombre" placeholder="Nombre o razón social del proveedor">
+                    <span v-if="errors.nombre" class="text-danger">{{ errors.nombre[0] }}</span>
+                </div>
+            </div>  
+            <div class="form-row">
+                <div class="form-group col-md-5">
+                    <label for="tipo_documento">Tipo Documento</label>                                    
+                    <select v-model="proveedor.tipo_documento" class="form-control" id="tipo_documento">
+                        <option value="" disabled>Seleccione...</option>
+                        <option value="RUC">RUC</option>
+                        <option value="DNI">DNI</option>                                        
+                        <option value="PASAPORTE">PASAPORTE</option>
+                    </select>    
+                    <span v-if="errors.tipo_documento" class="text-danger">{{ errors.tipo_documento[0] }}</span>
+                </div>
+                <div class="form-group col-md-7">
+                    <label for="num_documento">Número Documento</label>                                    
+                    <input type="text" v-model="proveedor.num_documento" class="form-control text-center" id="num_documento" placeholder="Nro. Documento">
+                    <span v-if="errors.num_documento" class="text-danger">{{ errors.num_documento[0] }}</span>                                    
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-5">
+                    <label for="direccion">Dirección</label>
+                    <input type="text" v-model="proveedor.direccion" class="form-control" id="direccion" placeholder="Domicilio del proveedor">            
+                    <span v-if="errors.direccion" class="text-danger">{{ errors.direccion[0] }}</span>
+                </div>                                            
+                <div class="form-group col-md-3">
+                    <label for="telefono">Teléfono</label>
+                    <input type="text" v-model="proveedor.telefono" class="form-control text-center" id="telefono">
+                    <span v-if="errors.telefono" class="text-danger">{{ errors.telefono[0] }}</span>
+                </div>                                
+                <div class="form-group col-md-4">
+                    <label for="email">E-mail</label>
+                    <input type="text" v-model="proveedor.email" class="form-control text-center" id="email">
+                    <span v-if="errors.email" class="text-danger">{{ errors.email[0] }}</span>
+                </div>
+            </div>                                                          
+            <div class="form-row">
+                <div class="form-group col-md-8">
+                    <label for="contacto">Contacto</label>
+                    <input type="text" v-model="proveedor.contacto" class="form-control text-center" id="contacto">
+                    <span v-if="errors.contacto" class="text-danger">{{ errors.contacto[0] }}</span>
+                </div>                                
+                <div class="form-group col-md-4">
+                    <label for="telefono_contacto">Teléfono Contacto</label>
+                    <input type="text" v-model="proveedor.telefono_contacto" class="form-control text-center" id="telefono_contacto">
+                    <span v-if="errors.telefono_contacto" class="text-danger">{{ errors.telefono_contacto[0] }}</span>
+                </div>
+            </div>           
+        </b-modal>          
     </main>
 </template>
 <script>
@@ -448,8 +498,7 @@
                 ingresos : [],                
                 arrayProveedor: [],
                 arrayDetalle : [],
-                listado : 1, 
-                modal : 0,
+                listado : 1,                 
                 tituloModal : '',
                 tituloModalNuevoEditar : '',                               
                 modalNuevoEditar : false,                       
@@ -468,7 +517,18 @@
                 filter: null,      
                 dismissSecs: 3,
                 dismissCountDown: 0,
-                errors : []                             
+                errors : [],
+                proveedor : {
+                    id : 0,
+                    nombre : '',                    
+                    tipo_documento : '',
+                    num_documento : '',                    
+                    direccion : '',
+                    telefono : '',
+                    email : '',
+                    contacto : '',
+                    telefono_contacto : ''
+                },                         
             }
         },        
         computed : {
@@ -616,16 +676,15 @@
             eliminarDetalle(index) {                
                 this.arrayDetalle.splice(index, 1);
             },
-            cerrarModal() {
-                this.modal=0;
+            cerrarModal() {                
                 this.tituloModal='';
                 this.criterioA = 'nombre';
                 this.buscarA = ''                
             }, 
             abrirModal(){          
-                this.arrayArticulo = [];                     
-                this.modal = 1;
-                this.tituloModal = 'Seleccione uno o varios artículos';
+                this.$bvModal.show('buscar-producto')
+                this.arrayArticulo = []                    
+                this.tituloModal = 'Seleccione uno o varios artículos'
             },            
             listarArticulo(buscar,criterio) {                                     
                 axios.get(`${this.ruta}/articulo/listarArticulo?buscar=${buscar}&criterio=${criterio}`)
@@ -720,7 +779,47 @@
                         this.txtErrorMsg = 'Error al anular el ingreso.';
                         this.dismissCountDown = this.dismissSecs;                                        
                     });
-            },                                           
+            },                               
+            registrarProveedor(bvModalEvt) {           
+                bvModalEvt.preventDefault()             
+                this.errors = [];
+
+                axios.post(`${this.ruta}/proveedor/registrar`, {
+                    'nombre': this.proveedor.nombre,          
+                    'tipo_documento': this.proveedor.tipo_documento,          
+                    'num_documento': this.proveedor.num_documento,                              
+                    'direccion': this.proveedor.direccion,          
+                    'telefono': this.proveedor.telefono,          
+                    'email': this.proveedor.email, 
+                    'contacto': this.proveedor.contacto, 
+                    'telefono_contacto': this.proveedor.telefono_contacto,    
+                }).then(response => {                                                  
+                    this.resetearProveedor()    
+                    this.$nextTick(() => {
+                        this.$bvModal.hide("add-proveedor");
+                    });
+                    this.$bvToast.toast('Proveedor registrado con éxito', {
+                        title: `Registrar proveedor`,
+                        variant: 'success',
+                        solid: true
+                    })  
+                }).catch(error => {                    
+                    if (error.response.status==422) {
+                        this.errors = error.response.data.errors;                      
+                    }                    
+                });                
+            },  
+            resetearProveedor(){                
+                this.proveedor.nombre = '';
+                this.proveedor.tipo_documento = '';
+                this.proveedor.num_documento = '';
+                this.proveedor.direccion = '';
+                this.proveedor.telefono = '';                
+                this.proveedor.email = '';                
+                this.proveedor.contacto = '';                
+                this.proveedor.telefono_contacto = '';         
+                this.errors = []                   
+            },                         
             cargarPdf(){
                 window.open(this.ruta + '/ingreso/listarPdf','_blank');
             },     
@@ -736,64 +835,7 @@
             },
         },        
     }
-</script>
-<style scoped>
-    /* Modal styles */
-    .modal .modal-dialog {
-        max-width: 800px;
-        margin: 3.75rem auto;
-    }
-    .modal2 .modal-dialog {
-        max-width: 550px;
-        margin: 3.75rem auto;
-    }
-    .modal .modal-header, .modal .modal-body, .modal .modal-footer {
-        padding: 10px 20px;
-        border-radius: 5px;
-    }
-    .modal .modal-content {
-        border-radius: 5px;
-    }
-    .modal .modal-footer {
-        background: #ecf0f1;
-        border-radius: 5px;
-    }
-    .modal .modal-title {
-        display: inline-block;
-    }    
-    .modal form label {
-        font-weight: 600;
-    }
-    .modal-content {
-        width: 100% !important;
-        position: absolute !important;
-        left: 0%;
-        margin-top: 20px !important;
-    }
-    .mostrar {
-        display: list-item !important;
-        opacity: 1 !important;
-        position: fixed !important;
-        background: rgba(0, 0, 0, 0.6) !important;        
-    }
-    label {
-        text-align: right;
-        vertical-align: middle;
-        font-weight: 600;
-    }
-    .error {
-        color: red;
-    }
-    .overlay {
-        position: fixed;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: rgba(0, 0, 0, 0.6);
-    }
-    
-</style>
+</script>  
 <style non-scoped>
     .style-chooser .vs__search::placeholder,
     .style-chooser .vs__dropdown-toggle,

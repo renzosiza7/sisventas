@@ -113,9 +113,9 @@
                 <template v-else-if="listado==0">
                 <div class="card-body">
                     <div class="form-group row border">
-                        <div class="col-md-7">
+                        <div class="col-md-6">
                             <div class="form-group">
-                                <label for="">Cliente (*)</label>
+                                <label for="">Cliente <span class="text-danger">*</span></label>
                                 <v-select
                                     v-model="venta.obj_cliente"
                                     @search="selectCliente"
@@ -130,50 +130,51 @@
                                         Lo sentimos, no hay resultados de coincidencia.
                                     </template>
                                 </v-select>                                
-                                <span v-if="errors.cliente" class="error">{{ errors.cliente[0] }}</span>
+                                <span v-if="errors.cliente" class="text-danger">{{ errors.cliente[0] }}</span>
                             </div>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-1">
                             <div class="form-group">
-                                <button class="btn btn-outline-primary form-control btnagregar" v-b-modal.add-cliente><i class="icon-plus"></i> Nuevo cliente</button>
+                                <label for="">&nbsp;</label>
+                                <b-button size="sm" variant="light" class="form-control" v-b-modal.add-cliente><i class="fa fa-plus"></i></b-button>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <label for="">I.G.V.(*)</label>
+                        <div class="offset-md-2 col-md-3">
+                            <label for="">I.G.V.<span class="text-danger">*</span></label>
                             <input type="text" class="form-control" v-model="venta.impuesto" readonly>
-                            <span v-if="errors.impuesto" class="error">{{ errors.impuesto[0] }}</span>
+                            <span v-if="errors.impuesto" class="text-danger">{{ errors.impuesto[0] }}</span>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label>Tipo Comprobante (*)</label>
+                                <label>Tipo Comprobante <span class="text-danger">*</span></label>
                                 <select class="form-control" v-model="venta.tipo_comprobante">
                                     <option value="">Seleccione...</option>
                                     <option value="BOLETA">Boleta</option>
                                     <option value="FACTURA">Factura</option>
                                     <option value="TICKET">Ticket</option>
                                 </select>
-                                <span v-if="errors.tipo_comprobante" class="error">{{ errors.tipo_comprobante[0] }}</span>
+                                <span v-if="errors.tipo_comprobante" class="text-danger">{{ errors.tipo_comprobante[0] }}</span>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label>Serie</label>
                                 <input type="text" class="form-control" v-model="venta.serie_comprobante" placeholder="000x">
-                                <span v-if="errors.serie_comprobante" class="error">{{ errors.serie_comprobante[0] }}</span>
+                                <span v-if="errors.serie_comprobante" class="text-danger">{{ errors.serie_comprobante[0] }}</span>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label>Correlativo (*)</label>
+                                <label>Correlativo <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" v-model="venta.num_comprobante" placeholder="000xx">
-                                <span v-if="errors.num_comprobante" class="error">{{ errors.num_comprobante[0] }}</span>
+                                <span v-if="errors.num_comprobante" class="text-danger">{{ errors.num_comprobante[0] }}</span>
                             </div>
                         </div>                        
                     </div>
                     <div class="form-group row border">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Artículo <span style="color:red;" v-show="idarticulo==0">(*Seleccione)</span></label>
+                                <label>Artículo <span style="color:red;" v-show="idarticulo==0"><span class="text-danger">*</span></span></label>
                                 <div class="form-inline">
                                     <input type="text" class="form-control" v-model="codigo" @keyup.enter="buscarArticulo()" placeholder="Ingrese artículo">
                                     <button @click="abrirModal()" class="btn btn-primary">...</button>
@@ -183,13 +184,13 @@
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
-                                <label>Precio <span style="color:red;" v-show="precio==0">(*Ingrese)</span></label>
+                                <label>Precio <span style="color:red;" v-show="precio==0"><span class="text-danger">*</span></span></label>
                                 <input type="number" value="0" step="any" class="form-control" v-model="precio">
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
-                                <label>Cantidad <span style="color:red;" v-show="cantidad==0">(*Ingrese)</span></label>
+                                <label>Cantidad <span style="color:red;" v-show="cantidad==0"><span class="text-danger">*</span></span></label>
                                 <input type="number" value="0" class="form-control" v-model="cantidad">
                             </div>
                         </div>
@@ -263,13 +264,13 @@
                                     </tr>
                                 </tbody>                                    
                             </table>
-                            <span v-if="errors.data" class="error">{{ errors.data[0] }}</span>
+                            <span v-if="errors.data" class="text-danger">{{ errors.data[0] }}</span>
                         </div>
                     </div>
                     <div class="form-group row">
                         <div class="col-md-12">
                             <button type="button" @click="ocultarDetalle()" class="btn btn-secondary">Cerrar</button>
-                            <button type="button" class="btn btn-primary" @click="registrarVenta()">Emitir Venta</button>
+                            <button type="button" class="btn btn-primary" @click="registrarVenta()">Registrar</button>
                         </div>
                     </div>
                 </div>
@@ -371,72 +372,56 @@
             </div><!-- Fin ejemplo de tabla Listado -->
         </div>       
 
-        <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade" tabindex="-1" :class="{'mostrar' : modal}" role="dialog" aria-labelledby="myModalLabel" style="display: none;" aria-hidden="true">
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title" v-text="tituloModal"></h4>
-                        <button type="button" class="close" @click="cerrarModal()" aria-label="Close">
-                            <span aria-hidden="true">×</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group row">
-                            <div class="col-md-8">
-                                <div class="input-group">
-                                    <select class="form-control col-md-4" v-model="criterioA">
-                                        <option value="nombre">Nombre</option>                                        
-                                        <option value="codigo">Código</option>
-                                        <option value="descripcion">Descripción</option>
-                                    </select>
-                                    <input type="text" v-model="buscarA" @keyup.enter="listarArticulo(buscarA,criterioA)" class="form-control" placeholder="Texto a buscar">
-                                    <button type="submit" @click="listarArticulo(buscarA,criterioA)" class="btn btn-primary"><i class="fa fa-search"></i> Buscar</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-striped table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>Acción</th>
-                                        <th>Código</th>
-                                        <th>Nombre</th>
-                                        <th>Categoría</th>
-                                        <th>Marca</th>
-                                        <th>Precio Venta</th>
-                                        <th>Stock</th>                                            
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="articulo in arrayArticulo" :key="articulo.id">
-                                        <td class="text-center">
-                                            <button type="button" @click="agregarDetalleModal(articulo)" class="btn btn-success btn-sm">
-                                            <i class="icon-check"></i>
-                                            </button>
-                                        </td>
-                                        <td v-text="articulo.codigo"></td>
-                                        <td v-text="articulo.nombre"></td>
-                                        <td v-text="articulo.categoria"></td>
-                                        <td v-text="articulo.marca"></td>
-                                        <td class="text-center" v-text="articulo.precio_venta"></td>
-                                        <td class="text-center" v-text="articulo.stock"></td>                                            
-                                    </tr>                                
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" @click="cerrarModal()">Cerrar</button>                            
+        <b-modal id="buscar-producto" size="lg" ref="modal" :title="tituloModal" @cancel="cerrarModal">                     
+            <div class="form-group row">
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <select class="form-control col-md-4" v-model="criterioA">
+                            <option value="nombre">Nombre</option>                                        
+                            <option value="codigo">Código</option>
+                            <option value="descripcion">Descripción</option>
+                        </select>
+                        <input type="text" v-model="buscarA" @keyup.enter="listarArticulo(buscarA,criterioA)" class="form-control" placeholder="Texto a buscar">
+                        <button type="submit" @click="listarArticulo(buscarA,criterioA)" class="btn btn-primary"><i class="fa fa-search"></i> Buscar</button>
                     </div>
                 </div>
-                <!-- /.modal-content -->
             </div>
-            <!-- /.modal-dialog -->
-        </div>
-        <!--Fin del modal-->    
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-sm">
+                    <thead>
+                        <tr>
+                            <th>Acción</th>
+                            <th>Código</th>
+                            <th>Nombre</th>
+                            <th>Categoría</th>
+                            <th>Marca</th>
+                            <th>Precio Venta</th>
+                            <th>Stock</th>                                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="articulo in arrayArticulo" :key="articulo.id">
+                            <td class="text-center">
+                                <button type="button" @click="agregarDetalleModal(articulo)" class="btn btn-success btn-sm">
+                                <i class="icon-check"></i>
+                                </button>
+                            </td>
+                            <td v-text="articulo.codigo"></td>
+                            <td v-text="articulo.nombre"></td>
+                            <td v-text="articulo.categoria"></td>
+                            <td v-text="articulo.marca"></td>
+                            <td class="text-center" v-text="articulo.precio_venta"></td>
+                            <td class="text-center" v-text="articulo.stock"></td>                                            
+                        </tr>                                
+                    </tbody>
+                </table>
+            </div>
+            <template v-slot:modal-footer="{ cancel }">
+                <b-button variant="secondary" @click="cancel()">Cerrar</b-button>                
+            </template>                    
+        </b-modal>  
 
-        <b-modal id="add-cliente" ref="modal" title="Crear un nuevo Rol" @cancel="resetearCliente" @ok="registrarCliente">
+        <b-modal id="add-cliente" ref="modal" title="Registrar cliente" @cancel="resetearCliente" @ok="registrarCliente">
             <template v-slot:modal-footer="{ ok, cancel }">
                 <b-button size="sm" variant="danger" @click="cancel()"
                 >Cancelar</b-button
@@ -453,38 +438,38 @@
                             <option value="RUC">RUC</option>                                        
                             <option value="PASAPORTE">PASAPORTE</option>
                         </select>    
-                        <span v-if="errors.tipo_documento" class="error">{{ errors.tipo_documento[0] }}</span>
+                        <span v-if="errors.tipo_documento" class="text-danger">{{ errors.tipo_documento[0] }}</span>
                     </div>
                     <div class="form-group col-md-7">
                         <label for="num_documento">Número Documento</label>                                    
                         <input type="text" v-model="cliente.num_documento" class="form-control text-center" id="num_documento" placeholder="Nro. Documento">
-                        <span v-if="errors.num_documento" class="error">{{ errors.num_documento[0] }}</span>                                    
+                        <span v-if="errors.num_documento" class="text-danger">{{ errors.num_documento[0] }}</span>                                    
                     </div>
                 </div>
                 <div class="form-row">                                
                     <div class="form-group col-md-12">
                         <label for="nombre">Nombre ó razón social</label>
                         <input type="text" v-model="cliente.nombre" class="form-control" id="nombre" placeholder="Nombre del cliente">
-                        <span v-if="errors.nombre" class="error">{{ errors.nombre[0] }}</span>
+                        <span v-if="errors.nombre" class="text-danger">{{ errors.nombre[0] }}</span>
                     </div>
                 </div>                              
                 <div class="form-row">
                     <div class="form-group col-md-12">
                         <label for="direccion">Dirección</label>
                         <input type="text" v-model="cliente.direccion" class="form-control" id="direccion" placeholder="Domicilio del cliente">            
-                        <span v-if="errors.direccion" class="error">{{ errors.direccion[0] }}</span>
+                        <span v-if="errors.direccion" class="text-danger">{{ errors.direccion[0] }}</span>
                     </div>                
                 </div>  
                 <div class="form-row">
                     <div class="form-group col-md-5">
                         <label for="telefono">Teléfono</label>
                         <input type="text" v-model="cliente.telefono" class="form-control text-center" id="telefono">
-                        <span v-if="errors.telefono" class="error">{{ errors.telefono[0] }}</span>
+                        <span v-if="errors.telefono" class="text-danger">{{ errors.telefono[0] }}</span>
                     </div>                                
                     <div class="form-group col-md-7">
                         <label for="email">E-mail</label>
                         <input type="text" v-model="cliente.email" class="form-control text-center" id="email">
-                        <span v-if="errors.email" class="error">{{ errors.email[0] }}</span>
+                        <span v-if="errors.email" class="text-danger">{{ errors.email[0] }}</span>
                     </div>
                 </div>                                                          
             </form>
@@ -535,8 +520,7 @@
                 ventas : [],                
                 arrayCliente: [],
                 arrayDetalle : [],
-                listado : 1, 
-                modal : 0,
+                listado : 1,                 
                 tituloModal : '',
                 tituloModalNuevoEditar : '',                              
                 modalNuevoEditar : false,                            
@@ -803,16 +787,15 @@
             eliminarDetalle(index) {                
                 this.arrayDetalle.splice(index, 1);
             },
-            cerrarModal() {
-                this.modal = 0;
+            cerrarModal() {                
                 this.tituloModal = '';
                 this.criterioA = 'nombre';
                 this.buscarA = ''                
             }, 
-            abrirModal() {          
-                this.arrayArticulo = [];                     
-                this.modal = 1;
-                this.tituloModal = 'Seleccione uno o varios artículos';
+            abrirModal(){          
+                this.$bvModal.show('buscar-producto')
+                this.arrayArticulo = []                    
+                this.tituloModal = 'Seleccione uno o varios artículos'
             },            
             listarArticulo(buscar, criterio) {                                
                 axios.get(`${this.ruta}/articulo/listarArticuloVenta?buscar=${buscar}&criterio=${criterio}`)
@@ -1015,62 +998,6 @@
         },        
     }
 </script>
-<style scoped>    
-    .modal .modal-dialog {
-        max-width: 800px;
-        margin: 3.75rem auto;
-    }
-    .modal2 .modal-dialog {
-        max-width: 550px;
-        margin: 3.75rem auto;
-    }
-    .modal .modal-header, .modal .modal-body, .modal .modal-footer {
-        padding: 10px 20px;
-        border-radius: 5px;
-    }
-    .modal .modal-content {
-        border-radius: 5px;
-    }
-    .modal .modal-footer {
-        background: #ecf0f1;
-        border-radius: 5px;
-    }
-    .modal .modal-title {
-        display: inline-block;
-    }    
-    .modal form label {
-        font-weight: 600;
-    }
-    .modal-content {
-        width: 100% !important;
-        position: absolute !important;
-        left: 0%;
-        margin-top: 20px !important;
-    }
-    .mostrar {
-        display: list-item !important;
-        opacity: 1 !important;
-        position: fixed !important;
-        background: rgba(0, 0, 0, 0.6) !important;        
-    }
-    label {
-        text-align: right;
-        vertical-align: middle;
-        font-weight: 600;
-    }
-    .error {
-        color: red;
-    }
-    .overlay {
-        position: fixed;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: rgba(0, 0, 0, 0.6);
-    }
-    
-</style>
 <style non-scoped>
     .style-chooser .vs__search::placeholder,
     .style-chooser .vs__dropdown-toggle,
